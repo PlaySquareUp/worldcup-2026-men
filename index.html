@@ -211,12 +211,12 @@
 <body>
 
     <h1>🏆 SquareUP: 2026 World Cup Edition 🏆</h1>
-    <p class="subtitle">Tap squares as they happen during the game.</p>
+    <p class="subtitle">Compete against other fans with 1pt per square tapped and 5pts for every BINGO!</p>
     
     <div class="setup-container">
         <div class="input-group">
-            <label>Player Name / Board Title:</label>
-            <input type="text" id="player-name" placeholder="e.g., John's Couch Card">
+            <label>Name Your Board:</label>
+            <input type="text" id="player-name" placeholder="e.g., Kellen's Card for Christopher 💉">
         </div>
         <div style="display: flex; gap: 10px;">
             <div class="input-group" style="flex: 1;">
@@ -228,13 +228,13 @@
                 <input type="text" id="team-2" placeholder="e.g., France">
             </div>
         </div>
-        <button class="btn" id="lock-game-btn" style="margin-bottom: 0;">Lock Match & Generate Board</button>
+        <button class="btn" id="lock-game-btn" style="margin-bottom: 0;">Lock In & Generate Board</button>
     </div>
 
     <div class="grid" id="bingo-board"></div>
 
     <div class="leaderboard">
-        <h3>📊 Live Lobby Scoreboard</h3>
+        <h3>📊 Live Scoreboard 📊</h3>
         <ul class="leaderboard-list" id="leaderboard-container">
             <li class="leaderboard-item" style="color: var(--text-muted);">Lock your game to join the scoreboard...</li>
         </ul>
@@ -242,7 +242,7 @@
 
     <div class="modal-overlay" id="bingo-modal">
         <div class="modal">
-            <h2 style="font-size: 3rem; margin: 0 0 10px 0;">BINGO! 🎉</h2>
+            <h2 style="font-size: 3rem; margin: 0 0 10px 0;">BINGO! +5 Points 🎉</h2>
             <p style="font-size: 1.2rem; margin: 0 0 20px 0;">You cleared 5 squares in a row!</p>
             <button class="btn" onclick="closeModal()" style="margin: 0;">Keep Playing</button>
         </div>
