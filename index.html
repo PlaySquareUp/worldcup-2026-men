@@ -3,61 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
-    <title>🏆 2026 World Cup Bingo</title>
-    <!-- Include Canvas-Confetti Library for the animated celebration -->
+    <title>🏆 2026 World Cup Bingo 🏆</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Edu+NSW+ACT+Foundation:wght@400;600&display=swap" rel="stylesheet">
+
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
     <style>
         :root {
-            --bg: #f8f9fa;            /* Soft neutral off-white */
-            --border: #e9ecef;        /* Clean light grey */
-            --text-main: #212529;     /* Deep charcoal */
-            --text-muted: #6c757d;    /* Slate grey text */
+            --bg: #f8f9fa;            
+            --border: #e9ecef;        
+            --text-main: #212529;     
+            --text-muted: #6c757d;    
             
-            /* Neutral Board Palette */
-            --square-bg: #ffffff;     /* Stark white unselected */
-            --square-hover: #f1f3f5;  /* Subtle grey hover */
-            --square-selected: #343a40; /* Strong dark charcoal for active squares */
-            --free-space: #e9ecef;    /* Light neutral accent for the center */
+            --square-bg: #ffffff;     
+            --square-hover: #f1f3f5;  
+            --square-selected: #343a40; 
+            --free-space: #e9ecef;    
+        }
+
+        /* Enforce absolute centering across the page */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
+            font-family: 'Edu NSW ACT Foundation', sans-serif;
+            font-weight: 400; 
             color: var(--text-main);
-            margin: 0;
-            padding: 16px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center; /* Vertical center */
+            text-align: center;      /* Horizontal text alignment */
+            padding: 16px;
+            box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
 
+        h1, h2, .btn {
+            font-family: 'Edu NSW ACT Foundation', sans-serif;
+            font-weight: 600; 
+        }
+
         h1 {
-            font-size: 1.75rem;
-            font-weight: 800;
-            margin: 10px 0 4px 0;
+            font-size: 2.1rem; 
+            margin: 10px 0 2px 0;
             letter-spacing: -0.5px;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px; 
+            width: 100%;
         }
 
         p.subtitle {
-            font-size: 0.9rem;
+            font-size: 1.05rem;
             margin: 0 0 20px 0;
             color: var(--text-muted);
+            width: 100%;
         }
 
         .btn {
             background-color: var(--text-main);
             color: white;
             border: none;
-            padding: 12px 28px;
-            font-size: 14px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            padding: 10px 24px;
+            font-size: 16px;
             cursor: pointer;
             border-radius: 6px;
-            margin-bottom: 20px;
+            margin: 0 auto 20px auto; /* Block horizontal center */
+            display: inline-block;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             transition: all 0.2s ease;
         }
@@ -72,6 +93,7 @@
             gap: 8px;
             width: 100%;
             max-width: 460px;
+            margin: 0 auto; /* Grid container centering */
         }
 
         .square {
@@ -82,243 +104,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
+            font-size: 0.9rem; 
+            font-weight: 400;  
             line-height: 1.2;
             padding: 6px;
-            text-align: center;
-            cursor: pointer;
-            user-select: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        @media (max-width: 400px) {
-            .square { font-size: 0.65rem; padding: 4px; }
-            .grid { gap: 5px; }
-        }
-
-        .square:hover {
-            background-color: var(--square-hover);
-        }
-
-        /* Vibrant pop when selected, utilizing high-contrast neutrals */
-        .square.selected {
-            background-color: var(--square-selected);
-            color: white;
-            border-color: var(--text-main);
-            text-decoration: line-through;
-            transform: scale(0.98);
-        }
-
-        .square.free-space {
-            background-color: var(--free-space);
-            color: var(--text-main);
-        }
-
-        /* Modal Overlay for BINGO Popup */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0; visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .modal-overlay.active {
-            opacity: 1; visibility: visible;
-        }
-
-        .modal {
-            background: white;
-            padding: 30px 40px;
-            border-radius: 16px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            transform: scale(0.8);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .modal-overlay.active .modal {
-            transform: scale(1);
-        }
-
-        .modal h2 {
-            font-size: 3rem;
-            margin: 0 0 10px 0;
-            letter-spacing: 2px;
-            color: var(--text-main);
-        }
-
-        .modal p {
-            margin: 0 0 20px 0;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-    </style>
-</head>
-<body>
-
-    <h1>🏆 WORLD CUP BINGO</h1>
-    <p class="subtitle">Tap matching match events to win!</p>
-    
-    <button class="btn" id="new-board-btn">Randomize Board</button>
-    
-    <div class="grid" id="bingo-board"></div>
-
-    <!-- Bingo Win Popup Structure -->
-    <div class="modal-overlay" id="bingo-modal">
-        <div class="modal">
-            <h2>BINGO! 🎉</h2>
-            <p>You cleared 5 squares in a row!</p>
-            <button class="btn" onclick="closeModal()" style="margin: 0;">Keep Playing</button>
-        </div>
-    </div>
-
-    <script>
-        const squarePool = [
-            "Yellow Card", "Straight Red Card", "VAR Overturns Call", "VAR Confirms Call",
-            "Offside Call", "Own Goal scored", "Penalty Awarded", "Goal from Outside Box",
-            "Celebrity in Crowd", "Fan Crying on Screen", "Coach Furiously Yelling",
-            "Elaborate Fan Costume", "Player Fakes Injury", "Goalkeeper Double-Save",
-            "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", "Game Goes to Extra Time",
-            "Commentator mentions '48-teams'", "Match Ends 0-0", "Corner Kick Shot on Goal",
-            "Woodwork Hit (Post/Bar)", "Sub Before Half-Time", "Bicycle Kick Attempt",
-            "Streaker or Pitch Invader", "Player Argues with Ref", "Goal Disallowed",
-            "Panicked Clearance", "Nutmeg Passing", "Manager in a Sharp Suit", "Medical Staff Runs On"
-        ];
-
-        function shuffle(array) {
-            let currentIndex = array.length, randomIndex;
-            while (currentIndex != 0) {
-                randomIndex = Math.floor(Math.random() * currentIndex);
-                currentIndex--;
-                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-            }
-            return array;
-        }
-
-        function saveToStorage(boardData) {
-            localStorage.setItem('wc_bingo_board_v2', JSON.stringify(boardData));
-        }
-
-        function loadFromStorage() {
-            const data = localStorage.getItem('wc_bingo_board_v2');
-            return data ? JSON.parse(data) : null;
-        }
-
-        function createNewBoardData() {
-            const shuffledItems = shuffle([...squarePool]).slice(0, 24);
-            const boardData = [];
-            let itemIndex = 0;
-
-            for (let i = 0; i < 25; i++) {
-                if (i === 12) {
-                    boardData.push({ text: "FREE SPACE\n⚽", isSelected: true, isFree: true });
-                } else {
-                    boardData.push({ text: shuffledItems[itemIndex], isSelected: false, isFree: false });
-                    itemIndex++;
-                }
-            }
-            // Reset win tracker state on a fresh board layout
-            localStorage.setItem('wc_bingo_won', 'false');
-            saveToStorage(boardData);
-            return boardData;
-        }
-
-        // Logic to scan board arrays to see if any 5-in-a-row criteria are met
-        function checkBingo(boardData) {
-            // Winning index combinations on a 5x5 grid
-            const lines = [
-                // Rows
-                [0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14], [15, 16, 17, 18, 19], [20, 21, 22, 23, 24],
-                // Columns
-                [0, 5, 10, 15, 20], [1, 6, 11, 16, 21], [2, 7, 12, 17, 22], [3, 8, 13, 18, 23], [4, 9, 14, 19, 24],
-                // Diagonals
-                [0, 6, 12, 18, 24], [4, 8, 12, 16, 20]
-            ];
-
-            for (let line of lines) {
-                if (line.every(index => boardData[index].isSelected)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        function triggerCelebration() {
-            // Don't repeatedly spam them if they continue clicking squares after already winning
-            if (localStorage.getItem('wc_bingo_won') === 'true') return;
-            localStorage.setItem('wc_bingo_won', 'true');
-
-            // Fire Canvas-Confetti effects
-            var duration = 3 * 1000;
-            var end = Date.now() + duration;
-
-            (function frame() {
-                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0, y: 0.8 } });
-                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1, y: 0.8 } });
-                if (Date.now() < end) { requestAnimationFrame(frame); }
-            }());
-
-            // Open popup modal
-            document.getElementById("bingo-modal").classList.add("active");
-        }
-
-        function closeModal() {
-            document.getElementById("bingo-modal").classList.remove("active");
-        }
-
-        function renderBoard(boardData) {
-            const boardContainer = document.getElementById("bingo-board");
-            boardContainer.innerHTML = ""; 
-
-            boardData.forEach((item, index) => {
-                const square = document.createElement("div");
-                square.classList.add("square");
-                square.innerText = item.text;
-
-                if (item.isFree) square.classList.add("free-space");
-                if (item.isSelected) square.classList.add("selected");
-
-                square.addEventListener("click", () => {
-                    if (item.isFree) return;
-                    
-                    item.isSelected = !item.isSelected;
-                    if (item.isSelected) {
-                        square.classList.add("selected");
-                    } else {
-                        square.classList.remove("selected");
-                        // Reset win lock if they unselect down past a winning threshold
-                        localStorage.setItem('wc_bingo_won', 'false');
-                    }
-                    saveToStorage(boardData);
-
-                    // Evaluate win conditions instantly on click
-                    if (checkBingo(boardData)) {
-                        triggerCelebration();
-                    }
-                });
-
-                boardContainer.appendChild(square);
-            });
-        }
-
-        document.getElementById("new-board-btn").addEventListener("click", () => {
-            if (confirm("Reset current progress and generate a new layout?")) {
-                const newLayout = createNewBoardData();
-                renderBoard(newLayout);
-            }
-        });
-
-        let activeBoard = loadFromStorage();
-        if (!activeBoard) activeBoard = createNewBoardData();
-        renderBoard(activeBoard);
-    </script>
-</body>
-</html>
+            text-align: center
