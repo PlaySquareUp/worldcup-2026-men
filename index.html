@@ -248,18 +248,40 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+        // const firebaseConfig = {
+            apiKey: "AIzaSyDZRaW_RxBu90MNBWkITahrHgUij8i9XJM",
+            authDomain: "worldcup-2026-men.firebaseapp.com",
+            databaseURL: "https://worldcup-2026-men-default-rtdb.firebaseio.com",
+            projectId: "worldcup-2026-men",
+            storageBucket: "worldcup-2026-men.firebasestorage.app",
+            messagingSenderId: "626852691514",
+            appId: "1:626852691514:web:a6dacc3d5d1d72a049ff03",
+            measurementId: "G-7Z093G8EC3"
+        };
+
+        // Initialize Firebase Tools
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
         const squarePool = [
-            "Yellow Card", "Straight Red Card", "VAR Overturns Call", "VAR Confirms Call",
-            "Offside Call", "Own Goal scored", "Penalty Awarded", "Goal from Outside Box",
-            "Celebrity in Crowd", "Fan Crying on Screen", "Coach Furiously Yelling",
-            "Elaborate Fan Costume", "Player Fakes Injury", "Goalkeeper Double-Save",
-            "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", "Game Goes to Extra Time",
-            "Commentator mentions '48-teams'", "Match Ends 0-0", "Corner Kick Shot on Goal",
-            "Woodwork Hit (Post/Bar)", "Sub Before Half-Time", "Bicycle Kick Attempt",
+            "Yellow Card", "Straight Red Card", "VAR Requested", "Header Goal",
+            ">2 Offside Call", "Own Goal scored", "Penalty Kick Awarded", "Goal from Outside Box",
+            "Celebrity Sighting", "Fan Crying on Screen", "Coach Furiously Yelling",
+            "Crazy Fan 'fit", "Major Dive or Fake Injury", ">2 Corner Kicks",
+            "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", ">5 Min of Extra Time",
+            "Goal Celebration", "Match Ends 0-0", "Goalkeeper Change",
+            "Ball Hits the Post/Bar", "Sub Before Half-Time", "Bicycle Kick Attempt",
             "Streaker or Pitch Invader", "Player Argues with Ref", "Goal Disallowed",
-            "Panicked Clearance", "Nutmeg Passing", "Manager in a Sharp Suit", "Medical Staff Runs On"
+            "Panicked Clearance", "Player Confrontation", "Coach Wearing a Suit", "Medical Staff Runs On"
         ];
+
+        let globalPlayerName = "";
+        let globalLobbyPath = "lobby_default";
+        let knownCompletedLinesCount = 0; // Tracks if a brand new row was cleared to pop up the celebration modal
 
         function shuffle(array) {
             let currentIndex = array.length, randomIndex;
@@ -276,19 +298,24 @@
             const t1 = document.getElementById('team-1').value.trim();
             const t2 = document.getElementById('team-2').value.trim();
 
-            if (!name) { alert("Please enter your name first!"); return; }
+            if (!name) { alert("Please enter a name first!"); return; }
             if (!t1 || !t2) { alert("Please enter both teams to verify the match!"); return; }
             
             if (t1.toLowerCase() === t2.toLowerCase()) { 
-                alert("A team cannot play against itself! Please enter two different countries."); 
+                alert("Umm, a team can't play against itself!"); 
                 return; 
             }
 
-            alert(`Match Confirmed! Loading random card array for ${t1} vs ${t2}. Good luck, ${name}!`);
-            generateNewBoard(name);
+            globalPlayerName = name;
+            globalLobbyPath = `lobby_${t1.toLowerCase().replace(/[^a-z]/g, "")}_vs_${t2.toLowerCase().replace(/[^a-z]/g, "")}`;
+
+            alert(`Match Confirmed! Entering Lobby Room: ${t1} vs ${t2}.`);
+            
+            listenToLeaderboard();
+            generateNewBoard();
         });
 
-        function generateNewBoard(playerName) {
+        function generateNewBoard() {
             const shuffledItems = shuffle([...squarePool]).slice(0, 24);
             const boardData = [];
             let itemIndex = 0;
@@ -301,11 +328,12 @@
                     itemIndex++;
                 }
             }
-            renderBoard(boardData, playerName);
-            updateMockLeaderboard(playerName, 1); 
+            knownCompletedLinesCount = 0;
+            renderBoard(boardData);
+            set(ref(database, `${globalLobbyPath}/${globalPlayerName}`), 1);
         }
 
-        function renderBoard(boardData, playerName) {
+        function renderBoard(boardData) {
             const boardContainer = document.getElementById("bingo-board");
             boardContainer.innerHTML = ""; 
 
@@ -320,41 +348,66 @@
                     item.isSelected = !item.isSelected;
                     square.classList.toggle("selected", item.isSelected);
 
-                    const score = boardData.filter(s => s.isSelected).length;
-                    updateMockLeaderboard(playerName, score);
+                    // 1. Calculate Base Clicks (1 point per active card slot)
+                    const baseClicks = boardData.filter(s => s.isSelected).length;
+                    
+                    // 2. Count total number of completed lines on the card layout
+                    const completedLines = countBingoLines(boardData);
+                    
+                    // 3. Compute final composite score (+5 points per line)
+                    const finalScore = baseClicks + (completedLines * 5);
+                    
+                    // Sync points seamlessly to the online scoreboard node
+                    set(ref(database, `${globalLobbyPath}/${globalPlayerName}`), finalScore);
 
-                    if (checkBingo(boardData)) {
+                    // Trigger confetti if they just achieved a new line completion
+                    if (completedLines > knownCompletedLinesCount) {
                         triggerCelebration();
                     }
+                    knownCompletedLinesCount = completedLines;
                 });
                 boardContainer.appendChild(square);
             });
         }
 
-        function checkBingo(boardData) {
+        // Returns the literal integer count of how many 5-in-a-row lines exist right now
+        function countBingoLines(boardData) {
             const lines = [
-                [0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24], 
-                [0,5,10,15,20], [1,6,11,16,21], [2,7,12,17,22], [3,8,13,18,23], [4,9,14,19,24], 
-                [0,6,12,18,24], [4,8,12,16,20] 
+                [0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24], // Rows
+                [0,5,10,15,20], [1,6,11,16,21], [2,7,12,17,22], [3,8,13,18,23], [4,9,14,19,24], // Columns
+                [0,6,12,18,24], [4,8,12,16,20] // Diagonals
             ];
-            return lines.some(line => line.every(idx => boardData[idx].isSelected));
+            
+            let lineMatches = 0;
+            lines.forEach(line => {
+                if (line.every(idx => boardData[idx].isSelected)) {
+                    lineMatches++;
+                }
+            });
+            return lineMatches;
         }
 
-        function updateMockLeaderboard(activePlayer, activeScore) {
-            const container = document.getElementById('leaderboard-container');
-            const players = [
-                { name: activePlayer, score: activeScore, self: true },
-                { name: "Diego_90", score: 8, self: false },
-                { name: "SoccerMom🏆", score: 5, self: false }
-            ].sort((a,b) => b.score - a.score);
+        function listenToLeaderboard() {
+            const leaderboardRef = ref(database, globalLobbyPath);
+            onValue(leaderboardRef, (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
 
-            container.innerHTML = "";
-            players.forEach(p => {
-                const li = document.createElement('li');
-                li.className = 'leaderboard-item';
-                if(p.self) li.style.fontWeight = 'bold';
-                li.innerHTML = `<span>${p.name}</span> <span>${p.score} pts</span>`;
-                container.appendChild(li);
+                const playerList = [];
+                for (let key in data) {
+                    playerList.push({ name: key, score: data[key] });
+                }
+                playerList.sort((a, b) => b.score - a.score);
+
+                const container = document.getElementById('leaderboard-container');
+                container.innerHTML = "";
+                playerList.forEach(p => {
+                    const li = document.createElement('li');
+                    li.className = 'leaderboard-item';
+                    if (p.name === globalPlayerName) li.style.fontWeight = 'bold';
+                    li.innerHTML = `<span>${p.name}</span> <span>${p.score} pts</span>`;
+                    container.appendChild(li);
+                });
             });
         }
 
@@ -368,7 +421,9 @@
             document.getElementById("bingo-modal").classList.add("active");
         }
 
-        function closeModal() { document.getElementById("bingo-modal").classList.remove("active"); }
+        window.closeModal = function() {
+            document.getElementById("bingo-modal").classList.remove("active");
+        }
     </script>
 </body>
 </html>
