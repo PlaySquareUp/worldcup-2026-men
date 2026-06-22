@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
+    <title>🏆 2026 World Cup Bingo</title>
+    <style>
+        :root {
+            --primary: #8a1538; /* World Cup Maroon */
+            --primary-dark: #5c0e25;
+            --accent: #e2b13c; /* Gold */
+            --bg: #f4f5f8;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        h1 {
+            font-size: 1.65rem;
+            margin: 10px 0 2px 0;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        p.subtitle {
+            font-size: 0.9rem;
+            margin: 0 0 15px 0;
+            color: #718096;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px rgba(138, 21, 56, 0.15);
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            width: 100%;
+            max-width: 480px; /* Perfect square layout for both mobile & desktop */
+        }
+
+        .square {
+            background-color: var(--card-bg);
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            overflow: hidden;
+            word-wrap: break-word;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.15s ease;
+        }
+
+        /* Adjust text size smoothly for small phone screens */
+        @media (max-width: 375px) {
+            .square { font-size: 0.6rem; }
+        }
+
+        .square.selected {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary-dark);
+            text-decoration: line-through;
+            opacity: 0.9;
+        }
+
+        .square.free-space {
+            background-color: var(--accent);
+            color: #1a202c;
+        }
+
+        .square.free-space.selected {
+            background-color: #c69628;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🏆 2026 World Cup Bingo</h1>
+    <p class="subtitle">Tap squares to track live match events!</p>
+    
+    <button class="btn" id="new-board-btn">🔀 New Random Board</button>
+    
+    <div class="grid" id="bingo-board"></div>
+
+    <script>
+        const squarePool = [
+            "Yellow Card", "Straight Red Card", "VAR Overturns Call", "VAR Confirms Call",
+            "Offside Call", "Own Goal scored", "Penalty Awarded", "Goal from Outside Box",
+            "Celebrity in Crowd", "Fan Crying on Screen", "Coach Furiously Yelling",
+            "Elaborate Fan Costume", "Player Fakes Injury", "Goalkeeper Double-Save",
+            "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", "Game Goes to Extra Time",
+            "Commentator mentions '48-teams'", "Match Ends 0-0", "Corner Kick Shot on Goal",
+            "Woodwork Hit (Post/Bar)", "Sub Before Half-Time", "Bicycle Kick Attempt",
+            "Streaker or Pitch Invader", "Player Argues with Ref", "Goal Disallowed",
+            "Panicked Clearance", "Nutmeg Passing", "Manager in a Sharp Suit", "Medical Staff Runs On"
+        ];
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        // Saves current state to the browser's memory
+        function saveToStorage(boardData) {
+            localStorage.setItem('wc_bingo_board', JSON.stringify(boardData));
+        }
+
+        // Loads state from memory if it exists
+        function loadFromStorage() {
+            const data = localStorage.getItem('wc_bingo_board');
+            return data ? JSON.parse(data) : null;
+        }
+
+        function createNewBoardData() {
+            const shuffledItems = shuffle([...squarePool]).slice(0, 24);
+            const boardData = [];
+            let itemIndex = 0;
+
+            for (let i = 0; i < 25; i++) {
+                if (i === 12) {
+                    boardData.push({ text: "FREE SPACE\n⚽", isSelected: true, isFree: true });
+                } else {
+                    boardData.push({ text: shuffledItems[itemIndex], isSelected: false, isFree: false });
+                    itemIndex++;
+                }
+            }
+            saveToStorage(boardData);
+            return boardData;
+        }
+
+        function renderBoard(boardData) {
+            const boardContainer = document.getElementById("bingo-board");
+            boardContainer.innerHTML = ""; 
+
+            boardData.forEach((item, index) => {
+                const square = document.createElement("div");
+                square.classList.add("square");
+                square.innerText = item.text;
+
+                if (item.isFree) square.classList.add("free-space");
+                if (item.isSelected) square.classList.add("selected");
+
+                // Click event handles selection logic + auto-saving
+                square.addEventListener("click", () => {
+                    if (item.isFree) return; // Free space stays selected
+                    
+                    item.isSelected = !item.isSelected;
+                    if (item.isSelected) {
+                        square.classList.add("selected");
+                    } else {
+                        square.classList.remove("selected");
+                    }
+                    saveToStorage(boardData);
+                });
+
+                boardContainer.appendChild(square);
+            });
+        }
+
+        // Setup Buttons and Initial Load
+        document.getElementById("new-board-btn").addEventListener("click", () => {
+            if (confirm("Are you sure you want to generate a new board? Your current progress will be reset.")) {
+                const newLayout = createNewBoardData();
+                renderBoard(newLayout);
+            }
+        });
+
+        // Initialize: Load saved board, or make a brand new one if none exists
+        let activeBoard = loadFromStorage();
+        if (!activeBoard) {
+            activeBoard = createNewBoardData();
+        }
+        renderBoard(activeBoard);
+    </script>
+</body>
+</html>
