@@ -1,18 +1,9 @@
-Ah, good eye! My apologies—I missed a couple of instances deep in the CSS styles where the old font properties were still lingering.
-
-Let's scrub those out completely. I have wiped every mention of the old font family from the stylesheets and locked the system exclusively to **Tanker** for the headings/titles and **DM Sans** for your setup forms, card grid squares, and live scoreboard text.
-
-### 📋 The Final, Corrected `index.html` File
-
-Erase your current GitHub code, paste this verified version, and save:
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>🏆 SquareUP: 2026 World Cup Edition 🏆</title>
+    <title>🏆 SquareUP: 2026 World Cup Edition ⚽</title>
     
     <link href="https://api.fontshare.com/v2/css?f[]=tanker@400&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -241,17 +232,17 @@ Erase your current GitHub code, paste this verified version, and save:
 <body>
 
     <h1>🏆 SQUAREUP: 2026 WORLD CUP EDITION 🏆</h1>
-    <p class="subtitle">Tap squares as they happen during the game.</p>
+    <p class="subtitle">Join the action with 1 point per square and 5 per row</p>
     
     <div class="setup-container">
         <div class="input-group">
             <label>Player Name / Board Title</label>
-            <input type="text" id="player-name" placeholder="e.g., John's Couch Card">
+            <input type="text" id="player-name" placeholder="e.g., Kellen's Call Christopher Card">
         </div>
         <div style="display: flex; gap: 10px;">
             <div class="input-group" style="flex: 1;">
                 <label>Team 1</label>
-                <input type="text" id="team-1" placeholder="e.g., Brazil">
+                <input type="text" id="team-1" placeholder="e.g., Mexico">
             </div>
             <div class="input-group" style="flex: 1;">
                 <label>Team 2</label>
@@ -272,7 +263,7 @@ Erase your current GitHub code, paste this verified version, and save:
 
     <div class="modal-overlay" id="bingo-modal">
         <div class="modal">
-            <h2>BINGO! 🎉</h2>
+            <h2>Woot! 5+ Points, Beech! 🎉</h2>
             <p style="font-size: 1.2rem; margin: 0 0 20px 0; font-weight: 500;">You cleared 5 squares in a row!</p>
             <button class="btn" onclick="closeModal()" style="margin: 0;">Keep Playing</button>
         </div>
@@ -304,14 +295,14 @@ Erase your current GitHub code, paste this verified version, and save:
 
         const squarePool = [
             "Yellow Card", "Straight Red Card", "VAR Overturns Call", "VAR Confirms Call",
-            "Offside Call", "Own Goal scored", "Penalty Awarded", "Goal from Outside Box",
-            "Celebrity in Crowd", "Fan Crying on Screen", "Coach Furiously Yelling",
-            "Elaborate Fan Costume", "Player Fakes Injury", "Goalkeeper Double-Save",
+            ">2 Offside Calls", "Own Goal scored", "Penalty Awarded", "Goal from Outside Box",
+            "Celeb Sighting", "Fan Crying on Screen", "Coach Furiously Yelling",
+            "Elaborate Fan Costume", "Player Fakes Injury", ">5 Min Extra Time",
             "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", "Game Goes to Extra Time",
-            "Commentator mentions '48-teams'", "Match Ends 0-0", "Corner Kick Shot on Goal",
+            "Hand Ball", "Match Ends 0-0", "Corner Kick Shot on Goal",
             "Woodwork Hit (Post/Bar)", "Sub Before Half-Time", "Bicycle Kick Attempt",
-            "Streaker or Pitch Invader", "Player Argues with Ref", "Goal Disallowed",
-            "Panicked Clearance", "Nutmeg Passing", "Manager in a Sharp Suit", "Medical Staff Runs On"
+            "Dive Downnnn aka Dive", "Player Argues with Ref", "Goal Disallowed",
+            "Panicked Clearance", ">4 Corner Kicks", "Coach in a Suit", "Medical Staff Runs On"
         ];
 
         let globalPlayerName = "";
@@ -340,7 +331,7 @@ Erase your current GitHub code, paste this verified version, and save:
             globalPlayerName = name;
             globalLobbyPath = `lobby_${t1.toLowerCase().replace(/[^a-z]/g, "")}_vs_${t2.toLowerCase().replace(/[^a-z]/g, "")}`;
 
-            alert(`Match Confirmed! Entering Lobby Room: ${t1.toUpperCase()} vs ${t2.toUpperCase()}.`);
+            alert(`Match Confirmed! Get Ready to SquareUP: ${t1.toUpperCase()} vs ${t2.toUpperCase()}.`);
             
             listenToLeaderboard();
             generateNewBoard();
