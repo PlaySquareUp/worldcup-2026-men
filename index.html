@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>SquareUP World Cup</title>
+    <title>🏆 SquareUP: 2026 World Cup Edition 🏆</title>
     
     <link href="https://api.fontshare.com/v2/css?f[]=tanker@400&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
@@ -22,258 +22,129 @@
             --square-hover: #f1f3f5;  
             --square-selected: #343a40; 
             --free-space: #e9ecef;    
+            --accent: #2b6cb0;
         }
 
-        html, body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg);
-        }
-
+        html, body { margin: 0; padding: 0; background-color: var(--bg); }
         body {
             font-family: 'DM Sans', sans-serif;
-            font-weight: 400; 
             color: var(--text-main);
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-align: center;      
             padding: 16px;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            user-select: none;
         }
 
-        /* Tanker Font for Headers & Titles */
-        h1, h2, h3, .tanker-text {
-            font-family: 'Tanker', sans-serif;
-            font-weight: 400; 
-            letter-spacing: 1px;
+        h1, h2, h3, .tanker-heading { font-family: 'Tanker', sans-serif; letter-spacing: 0.5px; }
+        h1 { font-size: 2.3rem; margin: 15px 0 5px 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        p.subtitle { font-size: 1rem; margin: 0 0 20px 0; color: var(--text-muted); font-weight: 500; }
+
+        .widget-box {
+            background: white; padding: 18px; border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px;
+            width: 100%; max-width: 460px; box-sizing: border-box;
         }
 
-        h1 {
-            font-size: 2.5rem; 
-            margin: 15px 0 5px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px; 
-            width: 100%;
+        .input-group { margin-bottom: 12px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 6px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+        .input-group input, .input-group select {
+            width: 100%; padding: 10px; border: 1px solid #dee2e6; border-radius: 6px;
+            font-family: 'DM Sans', sans-serif; box-sizing: border-box; font-size: 1rem; background-color: #f8f9fa;
         }
 
-        p.subtitle {
-            font-size: 1rem;
-            margin: 0 0 20px 0;
-            color: var(--text-muted);
-            width: 100%;
-            font-weight: 500;
+        /* Multicard Tabs */
+        .tabs-container {
+            display: flex; gap: 8px; width: 100%; max-width: 460px; 
+            overflow-x: auto; margin-bottom: 12px; padding-bottom: 4px;
         }
-
-        .setup-container {
-            background: white;
-            padding: 18px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 460px;
-            box-sizing: border-box;
+        .tab-button {
+            padding: 8px 16px; background: #e2e8f0; border: none; border-radius: 20px;
+            font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.85rem;
+            cursor: pointer; whitespace: nowrap; color: var(--text-muted); transition: all 0.2s;
         }
-
-        .input-group {
-            margin-bottom: 12px;
-            text-align: left;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            font-family: 'DM Sans', sans-serif;
-            box-sizing: border-box;
-            font-size: 1rem;
-            background-color: #f8f9fa;
-            transition: border-color 0.2s;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: var(--square-selected);
-            background-color: #fff;
-        }
+        .tab-button.active { background: var(--text-main); color: white; }
 
         .btn {
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 700;
-            background-color: var(--text-main);
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            font-size: 0.95rem;
-            cursor: pointer;
-            border-radius: 6px;
-            margin: 5px auto 15px auto;
-            display: inline-block;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: all 0.2s ease;
+            font-family: 'DM Sans', sans-serif; font-weight: 700; background-color: var(--text-main);
+            color: white; border: none; padding: 12px 28px; font-size: 0.95rem; cursor: pointer;
+            border-radius: 6px; display: inline-block; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); width: 100%;
         }
 
-        .btn:active {
-            transform: scale(0.97);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            width: 100%;
-            max-width: 460px;
-            margin: 0 auto 24px auto;
-        }
-
+        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; max-width: 460px; margin: 0 auto 24px auto; }
         .square {
-            background-color: var(--square-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem; 
-            font-weight: 700;
-            line-height: 1.2;
-            padding: 6px;
-            cursor: pointer;
-            box-sizing: border-box;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            background-color: var(--square-bg); border: 1px solid var(--border); border-radius: 8px;
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 700; line-height: 1.2; padding: 6px; cursor: pointer; box-sizing: border-box;
+            user-select: none;
         }
+        .square.selected { background-color: var(--square-selected); color: white; text-decoration: line-through; }
+        .square.free-space { background-color: var(--free-space); }
 
-        @media (max-width: 400px) {
-            .square { font-size: 0.7rem; padding: 4px; }
-            .grid { gap: 5px; }
-            h1 { font-size: 1.8rem; }
-        }
-
-        .square.selected {
-            background-color: var(--square-selected);
-            color: white;
-            text-decoration: line-through;
-        }
-
-        .square.free-space {
-            background-color: var(--free-space);
-            font-size: 0.85rem;
-        }
-
-        .leaderboard {
-            width: 100%;
-            max-width: 460px;
-            background: white;
-            border-radius: 12px;
-            padding: 18px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            box-sizing: border-box;
-        }
-
-        .leaderboard h3 { margin-top: 0; font-size: 1.6rem; letter-spacing: 0.5px; }
-
-        .leaderboard-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            text-align: left;
-        }
-
-        .leaderboard-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #edf2f7;
-            font-size: 1rem;
-            font-weight: 500;
-        }
+        .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #edf2f7; font-size: 0.95rem; }
+        .badge { background: #edf2f7; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
+        .badge.win { background: #e2f8f0; color: #1a7f64; }
 
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0; visibility: hidden;
-            transition: all 0.3s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000;
+            opacity: 0; visibility: hidden; transition: all 0.3s ease;
         }
-
         .modal-overlay.active { opacity: 1; visibility: visible; }
-
-        .modal {
-            background: white;
-            padding: 30px 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            text-align: center;
-        }
+        .modal { background: white; padding: 30px 40px; border-radius: 16px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <h1>SQUAREUP WORLD CUP</h1>
-    <p class="subtitle">Are you down to clown? Join the action each game earning 1pt per square and 5pts per row or diagonal. No Ronaldo fans allowed.</p>
+    <h1>🏆 SQUAREUP: MULTI-CARD GAME 🏆</h1>
+    <p class="subtitle">Generate unique cards per match. Track multiple lines & lobbies simultaneously!</p>
     
-    <div class="setup-container">
+    <div class="widget-box" id="setup-card">
         <div class="input-group">
-            <label>Player Name / Board Title</label>
-            <input type="text" id="player-name" placeholder="e.g., Kellen's Call Christopher Card">
+            <label>Your Display Name</label>
+            <input type="text" id="player-name" placeholder="e.g., Sam">
         </div>
         <div style="display: flex; gap: 10px;">
             <div class="input-group" style="flex: 1;">
                 <label>Team 1</label>
-                <input type="text" id="team-1" placeholder="e.g., Mexico">
+                <select id="team-1"></select>
             </div>
             <div class="input-group" style="flex: 1;">
                 <label>Team 2</label>
-                <input type="text" id="team-2" placeholder="e.g., France">
+                <select id="team-2"></select>
             </div>
         </div>
-        <button class="btn" id="lock-game-btn" style="margin-bottom: 0;">Lock Match & Generate Board</button>
+        <button class="btn" id="lock-game-btn">Generate Match Card</button>
     </div>
+
+    <div class="tabs-container" id="tabs-bar"></div>
 
     <div class="grid" id="bingo-board"></div>
 
-    <div class="leaderboard">
-        <h3>📊 LIVE SCOREBOARD 📊</h3>
-        <ul class="leaderboard-list" id="leaderboard-container">
-            <li class="leaderboard-item" style="color: var(--text-muted);">Lock your game to join the scoreboard...</li>
-        </ul>
+    <div class="widget-box">
+        <h3>📊 LIVE LOBBY SCOREBOARD</h3>
+        <div id="leaderboard-container" style="text-align: left; font-size: 1rem; color: var(--text-muted);">No active card selected...</div>
+    </div>
+
+    <div class="widget-box">
+        <h3>📜 YOUR GAME HISTORY & RECORDS</h3>
+        <div id="history-container" style="text-align: left; font-size: 0.95rem; color: var(--text-muted);">No historical cards found.</div>
     </div>
 
     <div class="modal-overlay" id="bingo-modal">
         <div class="modal">
-            <h2>Woot! 5+ Points, Beech! 🎉</h2>
-            <p style="font-size: 1.2rem; margin: 0 0 20px 0; font-weight: 500;">You cleared 5 squares in a row!</p>
-            <button class="btn" onclick="closeModal()" style="margin: 0;">Keep Playing</button>
+            <h2 style="font-size: 3.5rem; margin: 0 0 10px 0;">BINGO! 🎉</h2>
+            <p id="modal-desc" style="font-size: 1.2rem; margin: 0 0 20px 0; font-weight: 500;">You cleared a line combination!</p>
+            <button class="btn" onclick="closeModal()">Keep Playing for Multi-Bingo</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, get, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-        // Your verified live 2026 database configuration keys
         const firebaseConfig = {
             apiKey: "AIzaSyDZRaW_RxBu90MNBWkITahrHgUij8i9XJM",
             authDomain: "worldcup-2026-men.firebaseapp.com",
@@ -285,162 +156,207 @@
             measurementId: "G-7Z093G8EC3"
         };
 
-        let database = null;
-        try {
-            const app = initializeApp(firebaseConfig);
-            database = getDatabase(app);
-        } catch (error) {
-            console.error("Database initialization failed:", error);
-        }
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const auth = getAuth(app);
+
+        const tournamentTeams = [
+            { name: "Argentina", active: true }, { name: "Australia", active: true }, { name: "Austria", active: true },
+            { name: "Belgium", active: true }, { name: "Bosnia and Herzegovina", active: true }, { name: "Brazil", active: true },
+            { name: "Cabo Verde", active: true }, { name: "Canada", active: true }, { name: "Colombia", active: true },
+            { name: "Croatia", active: true }, { name: "DR Congo", active: true }, { name: "Ecuador", active: true },
+            { name: "Egypt", active: true }, { name: "England", active: true }, { name: "France", active: true },
+            { name: "Germany", active: true }, { name: "Ghana", active: true }, { name: "Iran", active: true },
+            { name: "Ivory Coast", active: true }, { name: "Morocco", active: true }, { name: "Netherlands", active: true },
+            { name: "Norway", active: true }, { name: "Paraguay", active: true }, { name: "Portugal", active: true },
+            { name: "Senegal", active: true }, { name: "South Africa", active: true }, { name: "Spain", active: true },
+            { name: "Sweden", active: true }, { name: "Switzerland", active: true }, { name: "Ukraine", active: true }, { name: "USA", active: true }
+        ].sort((a,b) => a.name.localeCompare(b.name));
 
         const squarePool = [
-            "Yellow Card", "Straight Red Card", "VAR Check", ">3 Corner Kicks",
-            ">3 Offside Calls", "Own Goal scored", "Penalty Awarded", "Goal from Outside Box",
-            "Celeb Sighting", "Fan Crying on Screen", "Coach Furiously Yelling",
-            "Elaborate Fan 'fit", "Breakaway Goal", ">5 Min Extra Time",
-            "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", "Penalty Shootout",
-            "Hand Ball", ">4 Goals Scored", "Corner Kick Shot on Goal",
-            "Woodwork Hit (Post/Bar)", "Sub Before Half-Time", "Bicycle Kick Attempt",
-            "Diva Downnnn aka Dive", "Player Argues with Ref", "Goal Disallowed",
-            "Set Piece Goal", "Ref Warns A Coach", "Coach in a Suit", "Team Celebration Dance"
+            "Yellow Card", "Straight Red Card", "VAR Overturns Call", "VAR Confirms Call", "Offside Call", "Own Goal scored", 
+            "Penalty Awarded", "Goal from Outside Box", "Celebrity in Crowd", "Fan Crying on Screen", "Coach Furiously Yelling",
+            "Elaborate Fan Costume", "Player Fakes Injury", "Goalkeeper Double-Save", "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", 
+            "Game Goes to Extra Time", "Commentator mentions '48-teams'", "Match Ends 0-0", "Corner Kick Shot on Goal",
+            "Woodwork Hit (Post/Bar)", "Sub Before Half-Time", "Bicycle Kick Attempt", "Streaker or Pitch Invader", 
+            "Player Argues with Ref", "Goal Disallowed", "Panicked Clearance", "Nutmeg Passing", "Manager in a Sharp Suit", "Medical Staff Runs On"
         ];
 
-        let globalPlayerName = "";
-        let globalLobbyPath = "lobby_default";
-        let knownCompletedLinesCount = 0; 
+        let userId = "";
+        let activeCardsList = {}; 
+        let currentCardId = ""; 
+        let leaderboardUnsubscribe = null;
 
-        function shuffle(array) {
-            let currentIndex = array.length, randomIndex;
-            while (currentIndex != 0) {
-                randomIndex = Math.floor(Math.random() * currentIndex);
-                currentIndex--;
-                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        const s1 = document.getElementById('team-1'); const s2 = document.getElementById('team-2');
+        tournamentTeams.forEach(t => { s1.add(new Option(t.name, t.name)); s2.add(new Option(t.name, t.name)); });
+
+        signInAnonymously(auth).catch(console.error);
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                userId = user.uid;
+                syncUserSessions();
             }
-            return array;
-        }
+        });
 
         document.getElementById('lock-game-btn').addEventListener('click', () => {
             const name = document.getElementById('player-name').value.trim();
-            const t1 = document.getElementById('team-1').value.trim();
-            const t2 = document.getElementById('team-2').value.trim();
+            const t1 = s1.value; const t2 = s2.value;
+            if (!name) { alert("Please enter your name!"); return; }
+            if (t1 === t2) { alert("Select two different countries!"); return; }
 
-            if (!name) { alert("Please enter your name first!"); return; }
-            if (!t1 || !t2) { alert("Please enter both teams to verify the match!"); return; }
-            if (t1.toLowerCase() === t2.toLowerCase()) { alert("A team cannot play against itself!"); return; }
-
-            globalPlayerName = name;
-            globalLobbyPath = `lobby_${t1.toLowerCase().replace(/[^a-z]/g, "")}_vs_${t2.toLowerCase().replace(/[^a-z]/g, "")}`;
-
-            alert(`Match Confirmed! Get Ready to SquareUP: ${t1.toUpperCase()} vs ${t2.toUpperCase()}.`);
+            // Future monetization logic gate location
+            const cardId = "card_" + Date.now();
+            const lobbyName = `lobby_${t1.replace(/\s+/g, "")}_vs_${t2.replace(/\s+/g, "")}`;
             
-            listenToLeaderboard();
-            generateNewBoard();
+            const shuffled = [...squarePool].sort(() => Math.random() - 0.5).slice(0, 24);
+            const generatedBoard = [];
+            let poolIdx = 0;
+            for (let i = 0; i < 25; i++) {
+                if (i === 12) generatedBoard.push({ text: "FREE SPACE\n⚽", isSelected: true, isFree: true });
+                else generatedBoard.push({ text: shuffled[poolIdx++], isSelected: false, isFree: false });
+            }
+
+            const cardPayload = { cardId, name, lobby: lobbyName, match: `${t1} vs ${t2}`, board: generatedBoard, completedLines: 0 };
+            
+            // Write card details directly to personal space and sync live scoreboard
+            set(ref(database, `users/${userId}/cards/${cardId}`), cardPayload);
+            set(ref(database, `${lobbyName}/${cardId}`), { name, score: 1 });
+
+            currentCardId = cardId;
         });
 
-        function generateNewBoard() {
-            const shuffledItems = shuffle([...squarePool]).slice(0, 24);
-            const boardData = [];
-            let itemIndex = 0;
-
-            for (let i = 0; i < 25; i++) {
-                if (i === 12) {
-                    boardData.push({ text: "FREE SPACE\n⚽", isSelected: true, isFree: true });
+        function syncUserSessions() {
+            // Track and listen to all cards linked under user session node pools
+            onValue(ref(database, `users/${userId}/cards`), snapshot => {
+                activeCardsList = snapshot.val() || {};
+                renderTabs();
+                renderHistory();
+                
+                if (currentCardId && activeCardsList[currentCardId]) {
+                    renderActiveBoard();
                 } else {
-                    boardData.push({ text: shuffledItems[itemIndex], isSelected: false, isFree: false });
-                    itemIndex++;
+                    const keys = Object.keys(activeCardsList);
+                    if(keys.length > 0 && !currentCardId) {
+                        currentCardId = keys[keys.length - 1];
+                        renderActiveBoard();
+                    }
                 }
-            }
-            knownCompletedLinesCount = 0;
-            renderBoard(boardData);
-            if (database) set(ref(database, `${globalLobbyPath}/${globalPlayerName}`), 1);
+            });
         }
 
-        function renderBoard(boardData) {
-            const boardContainer = document.getElementById("bingo-board");
-            boardContainer.innerHTML = ""; 
+        function renderTabs() {
+            const container = document.getElementById('tabs-bar');
+            container.innerHTML = Object.values(activeCardsList).map(c => `
+                <button class="tab-button ${c.cardId === currentCardId ? 'active' : ''}" data-id="${c.cardId}">
+                    ${c.match}
+                </button>
+            `).join("");
 
-            boardData.forEach((item) => {
-                const square = document.createElement("div");
-                square.classList.add("square");
-                if (item.isFree) square.classList.add("free-space");
-                square.innerText = item.text;
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    currentCardId = e.target.getAttribute('data-id');
+                    renderActiveBoard();
+                });
+            });
+        }
 
-                square.addEventListener("click", () => {
+        function renderActiveBoard() {
+            const activeCard = activeCardsList[currentCardId];
+            if (!activeCard) return;
+
+            document.getElementById('player-name').value = activeCard.name;
+            const container = document.getElementById("bingo-board");
+            container.innerHTML = "";
+
+            activeCard.board.forEach((item, idx) => {
+                const sq = document.createElement("div");
+                sq.className = `square ${item.isFree ? 'free-space' : ''} ${item.isSelected ? 'selected' : ''}`;
+                sq.innerText = item.text;
+
+                sq.addEventListener("click", () => {
                     if (item.isFree) return;
                     item.isSelected = !item.isSelected;
-                    square.classList.toggle("selected", item.isSelected);
-
-                    const baseClicks = boardData.filter(s => s.isSelected).length;
-                    const completedLines = countBingoLines(boardData);
-                    const finalScore = baseClicks + (completedLines * 5);
                     
-                    if (database) set(ref(database, `${globalLobbyPath}/${globalPlayerName}`), finalScore);
+                    const base = activeCard.board.filter(s => s.isSelected).length;
+                    const totalLines = countBingoLines(activeCard.board);
+                    const runningScore = base + (totalLines * 5);
 
-                    if (completedLines > knownCompletedLinesCount) {
+                    // Multi-Bingo evaluation
+                    let updates = {};
+                    updates[`users/${userId}/cards/${currentCardId}/board/${idx}/isSelected`] = item.isSelected;
+                    updates[`users/${userId}/cards/${currentCardId}/completedLines`] = totalLines;
+                    updates[`${activeCard.lobby}/${currentCardId}`] = { name: activeCard.name, score: runningScore };
+                    
+                    update(ref(database), updates);
+
+                    if (totalLines > activeCard.completedLines) {
+                        document.getElementById('modal-desc').innerText = `You just locked in Bingo Line #${totalLines}! (+5 Bonus Points)`;
                         triggerCelebration();
                     }
-                    knownCompletedLinesCount = completedLines;
                 });
-                boardContainer.appendChild(square);
+                container.appendChild(sq);
             });
+
+            listenToLeaderboard(activeCard.lobby);
         }
 
-        function countBingoLines(boardData) {
-            const lines = [
-                [0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24], 
-                [0,5,10,15,20], [1,6,11,16,21], [2,7,12,17,22], [3,8,13,18,23], [4,9,14,19,24], 
-                [0,6,12,18,24], [4,8,12,16,20] 
+        function countBingoLines(board) {
+            const matrix = [
+                [0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24],
+                [0,5,10,15,20], [1,6,11,16,21], [2,7,12,17,22], [3,8,13,18,23], [4,9,14,19,24],
+                [0,6,12,18,24], [4,8,12,16,20]
             ];
-            
-            let lineMatches = 0;
-            lines.forEach(line => {
-                if (line.every(idx => boardData[idx].isSelected)) {
-                    lineMatches++;
-                }
-            });
-            return lineMatches;
+            return matrix.filter(line => line.every(i => board[i].isSelected)).length;
         }
 
-        function listenToLeaderboard() {
-            if (!database) return;
-            const leaderboardRef = ref(database, globalLobbyPath);
-            onValue(leaderboardRef, (snapshot) => {
-                const data = snapshot.val();
-                if (!data) return;
-
-                const playerList = [];
-                for (let key in data) {
-                    playerList.push({ name: key, score: data[key] });
-                }
-                playerList.sort((a, b) => b.score - a.score);
-
+        function listenToLeaderboard(lobbyPath) {
+            if (leaderboardUnsubscribe) leaderboardUnsubscribe();
+            
+            leaderboardUnsubscribe = onValue(ref(database, lobbyPath), snapshot => {
+                const records = snapshot.val() || {};
+                const sorted = Object.values(records).sort((a,b) => b.score - a.score);
                 const container = document.getElementById('leaderboard-container');
-                container.innerHTML = "";
-                playerList.forEach(p => {
-                    const li = document.createElement('li');
-                    li.className = 'leaderboard-item';
-                    if (p.name === globalPlayerName) li.style.fontWeight = 'bold';
-                    li.innerHTML = `<span>${p.name}</span> <span>${p.score} PTS</span>`;
-                    container.appendChild(li);
-                });
+                container.innerHTML = sorted.map(p => `
+                    <div class='history-item'><span>${p.name}</span><strong>${p.score} PTS</strong></div>
+                `).join("");
             });
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('history-container');
+            const historyData = Object.values(activeCardsList);
+            if (historyData.length === 0) return;
+
+            container.innerHTML = historyData.map(c => {
+                const isWon = c.completedLines > 0;
+                const base = c.board.filter(s => s.isSelected).length;
+                const score = base + (c.completedLines * 5);
+                const badgeClass = isWon ? "badge win" : "badge";
+                const badgeText = isWon ? `🏆 BINGO x${c.completedLines}` : "Active";
+
+                return `
+                    <div class='history-item'>
+                        <span>⚽ ${c.match}</span>
+                        <div>
+                            <span class="${badgeClass}">${badgeText}</span>
+                            <strong style="margin-left: 8px;">${score} PTS</strong>
+                        </div>
+                    </div>
+                `;
+            }).join("");
         }
 
         function triggerCelebration() {
-            var duration = 3 * 1000; var end = Date.now() + duration;
+            let duration = 3 * 1000; let end = Date.now() + duration;
             (function frame() {
                 confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0, y: 0.8 } });
                 confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1, y: 0.8 } });
-                if (Date.now() < end) { requestAnimationFrame(frame); }
+                if (Date.now() < end) requestAnimationFrame(frame);
             }());
             document.getElementById("bingo-modal").classList.add("active");
         }
 
-        window.closeModal = function() {
-            document.getElementById("bingo-modal").classList.remove("active");
-        }
+        window.closeModal = () => document.getElementById("bingo-modal").classList.remove("active");
     </script>
 </body>
 </html>
-
-```
