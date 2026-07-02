@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>🏆 SquareUP: 2026 World Cup Edition 🏆</title>
     
+    <!-- Import Tanker (Display) and DM Sans (Body) Typography -->
     <link href="https://api.fontshare.com/v2/css?f[]=tanker@400&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
 
+    <!-- Include Canvas-Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
@@ -59,17 +61,31 @@
         .auth-toggle { font-size: 0.85rem; color: var(--accent); cursor: pointer; text-decoration: underline; margin-top: 10px; display: inline-block; }
         .error-message { color: var(--error); font-size: 0.85rem; margin-top: 5px; display: none; font-weight: 500; }
 
-        /* Dynamic Tab Elements */
+        /* Scrollable Match Strip Container Fix (Issue 2) */
         .tabs-container {
             display: flex; gap: 8px; width: 100%; max-width: 460px; 
-            overflow-x: auto; margin-bottom: 12px; padding-bottom: 4px;
+            overflow-x: auto; margin-bottom: 16px; padding: 4px 2px 8px 2px;
+            scrollbar-width: thin; -webkit-overflow-scrolling: touch;
         }
+        .tabs-container::-webkit-scrollbar { height: 5px; }
+        .tabs-container::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+
         .tab-button {
-            padding: 8px 16px; background: #e2e8f0; border: none; border-radius: 20px;
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 14px; background: #e2e8f0; border: none; border-radius: 20px;
             font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.85rem;
             cursor: pointer; white-space: nowrap; color: var(--text-muted); transition: all 0.2s;
         }
         .tab-button.active { background: var(--text-main); color: white; }
+        
+        /* Delete Card Pill Icon Element (Issue 6) */
+        .delete-card-btn {
+            background: rgba(0,0,0,0.1); border: none; border-radius: 50%;
+            width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;
+            font-size: 10px; color: inherit; cursor: pointer; font-weight: 700; padding: 0;
+        }
+        .tab-button.active .delete-card-btn { background: rgba(255,255,255,0.25); }
+        .delete-card-btn:hover { background: #e53e3e !important; color: white !important; }
 
         .btn {
             font-family: 'DM Sans', sans-serif; font-weight: 700; background-color: var(--text-main);
@@ -91,6 +107,10 @@
         .square.free-space { background-color: var(--free-space); }
 
         .history-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #edf2f7; font-size: 0.95rem; align-items: center; }
+        
+        /* Inactive Game Visual Cues (Issue 7) */
+        .history-item.stale-card { opacity: 0.55; background: #fdfdfd; filter: grayscale(20%); }
+        
         .badge { background: #edf2f7; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
         .badge.win { background: #e2f8f0; color: #1a7f64; }
 
@@ -106,10 +126,11 @@
 <body>
 
     <h1>🏆 SQUAREUP: MULTI-CARD GAME 🏆</h1>
-    <p class="subtitle">Log in to track your permanent game history, multi-bingo bonuses, and live lobby scoreboards.</p>
+    <p class="subtitle">Generate unique cards per match. Track multiple lines & lobbies simultaneously!</p>
     
+    <!-- Authentication Widget Box (Defaults to Login Mode - Issue 4) -->
     <div class="widget-box" id="auth-card">
-        <h3 id="auth-title" style="margin-top: 0; font-size: 1.5rem;">CREATE ACCOUNT</h3>
+        <h3 id="auth-title" style="margin-top: 0; font-size: 1.5rem;">ACCOUNT LOGIN</h3>
         <div class="input-group">
             <label>Email Address</label>
             <input type="email" id="auth-email" placeholder="e.g., marta10@worldcup.com">
@@ -119,10 +140,11 @@
             <input type="password" id="auth-password" placeholder="At least 6 characters">
         </div>
         <div class="error-message" id="auth-error">Error message placeholder</div>
-        <button class="btn" id="auth-submit-btn" style="margin-top: 10px;">Sign Up</button>
-        <span class="auth-toggle" id="auth-toggle-link">Already have an account? Log In</span>
+        <button class="btn" id="auth-submit-btn" style="margin-top: 10px;">Log In</button>
+        <span class="auth-toggle" id="auth-toggle-link">Need a new account? Sign Up</span>
     </div>
 
+    <!-- Match Card Generator Widget -->
     <div class="widget-box" id="setup-card" style="display: none;">
         <h3 style="margin-top: 0; font-size: 1.5rem;">GENERATE MATCH CARD</h3>
         <div class="input-group">
@@ -139,26 +161,30 @@
                 <select id="team-2"></select>
             </div>
         </div>
-        <button class="btn" id="lock-game-btn">Lock Match Layout</button>
+        <button class="btn" id="lock-game-btn">Lock In this Board</button> <!-- Title Update - Issue 1 -->
         <button class="btn btn-secondary" id="logout-btn">Log Out Account</button>
     </div>
 
+    <!-- Active Card Tabs Strip Wrapper (Issue 2) -->
     <div class="tabs-container" id="tabs-bar"></div>
 
+    <!-- Active Bingo Grid -->
     <div class="grid" id="bingo-board"></div>
 
+    <!-- Live Scores Leaderboard Box (Title Update - Issue 3) -->
     <div class="widget-box" id="leaderboard-card" style="display: none;">
-        <h3>📊 LIVE LOBBY SCOREBOARD</h3>
+        <h3>📊 SCOREBOARD FOR THIS GAME</h3>
         <div id="leaderboard-container" style="text-align: left; font-size: 1rem; color: var(--text-muted);">No active card selected...</div>
     </div>
 
+    <!-- User Profile History Track -->
     <div class="widget-box" id="history-card" style="display: none;">
         <h3>📜 YOUR PERMANENT MATCH ARCHIVE</h3>
         <div id="history-container" style="text-align: left; font-size: 0.95rem; color: var(--text-muted);">No historical card instances found.</div>
     </div>
 
-    <div class="modal-overlay" id="
-        <div class="modal-overlay" id="bingo-modal">
+    <!-- Win Modal Popup -->
+    <div class="modal-overlay" id="bingo-modal">
         <div class="modal">
             <h2 style="font-size: 3.5rem; margin: 0 0 10px 0;">BINGO! 🎉</h2>
             <p id="modal-desc" style="font-size: 1.2rem; margin: 0 0 20px 0; font-weight: 500;">You cleared a line combination!</p>
@@ -166,11 +192,13 @@
         </div>
     </div>
 
+    <!-- Firebase System Integration Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
+        // Verified Live 2026 Database Config Engine
         const firebaseConfig = {
             apiKey: "AIzaSyDZRaW_RxBu90MNBWkITahrHgUij8i9XJM",
             authDomain: "worldcup-2026-men.firebaseapp.com",
@@ -186,6 +214,7 @@
         const database = getDatabase(app);
         const auth = getAuth(app);
 
+        // Complete Alphabetized Countries (Including Mexico - Issue 5)
         const tournamentTeams = [
             { name: "Argentina" }, { name: "Australia" }, { name: "Austria" },
             { name: "Belgium" }, { name: "Bosnia and Herzegovina" }, { name: "Brazil" },
@@ -193,31 +222,34 @@
             { name: "Croatia" }, { name: "DR Congo" }, { name: "Ecuador" },
             { name: "Egypt" }, { name: "England" }, { name: "France" },
             { name: "Germany" }, { name: "Ghana" }, { name: "Iran" },
-            { name: "Ivory Coast" }, { name: "Morocco" }, { name: "Netherlands" },
-            { name: "Norway" }, { name: "Paraguay" }, { name: "Portugal" },
-            { name: "Senegal" }, { name: "South Africa" }, { name: "Spain" },
-            { name: "Sweden" }, { name: "Switzerland" }, { name: "Ukraine" }, { name: "USA" }
+            { name: "Ivory Coast" }, { name: "Mexico" }, { name: "Morocco" }, 
+            { name: "Netherlands" }, { name: "Norway" }, { name: "Paraguay" }, 
+            { name: "Portugal" }, { name: "Senegal" }, { name: "South Africa" }, 
+            { name: "Spain" }, { name: "Sweden" }, { name: "Switzerland" }, 
+            { name: "Ukraine" }, { name: "USA" }
         ].sort((a,b) => a.name.localeCompare(b.name));
 
-        // Revised Square Pool Tiles
+        // Revised Structural Tile Pool Data (Issue 8 - XML Safe Words)
         const squarePool = [
-            "Yellow Card", "Straight Red Card", "VAR Overturns Call", "VAR Confirms Call", "Offside Call", "Own Goal scored", 
-            "Penalty Awarded", "Goal from Outside Box", "Celebrity in Crowd", "Fan Crying on Screen", "Coach Furiously Yelling",
-            "Elaborate Fan Costume", "Player Fakes Injury", "Goalkeeper Double-Save", "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", 
-            "Game Goes to Extra Time", "Commentator mentions '48-teams'", "Match Ends 0-0", "Corner Kick Shot on Goal",
-            "Woodwork Hit (Post/Bar)", "Sub Before Half-Time", "Bicycle Kick Attempt", "Streaker or Pitch Invader", 
-            "Player Argues with Ref", "Goal Disallowed", "Panicked Clearance", "Nutmeg Passing", "Manager in a Sharp Suit", "Medical Staff Runs On"
+            "Yellow Card", "Straight Red Card", "VAR Overturns Call", "VAR Confirms Call", "Header Goal", "Own Goal scored", "Non-Basic Goal Celebration",
+            "Penalty Kick Awarded", "Goal from Outside Box", "More than 2 Celeb sightings", "Fan Crying on Screen", "Coach Furiously Yelling", "Cute Kids on Screen",
+            "Elaborate Fan 'Fit", "Diva Down aka a dive", "Player with Tattoos", "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", 
+            "Game Goes to Extra Time", "Player with Cool Hair", "Match Ends 0-0", "Shot or Header from a Corner",
+            "Woodwork Hit (Post/Bar)", "Sub Before Halftime", "Bicycle Kick Attempt", "More than 3 Offsides Calls", "More than 3 Corner Kicks", "More than 5 Min of Extra Time Added",
+            "Player Argues with Ref", "Goal Disallowed", "Breakaway Goal", "Nutmeg", "Coach in a Suit", "Game Goes to Extra Time", "Penalty Shootout"
         ];
 
         let userId = "";
         let activeCardsList = {}; 
         let currentCardId = ""; 
         let leaderboardUnsubscribe = null;
-        let isLoginMode = false; 
+        let isLoginMode = true; // Default shifted to Login Mode (Issue 4)
 
+        // Populate menus right away
         const s1 = document.getElementById('team-1'); const s2 = document.getElementById('team-2');
         tournamentTeams.forEach(t => { s1.add(new Option(t.name, t.name)); s2.add(new Option(t.name, t.name)); });
 
+        // --- AUTH STRATEGY INITIALIZERS ---
         const authToggleLink = document.getElementById('auth-toggle-link');
         const authTitle = document.getElementById('auth-title');
         const authSubmitBtn = document.getElementById('auth-submit-btn');
@@ -271,6 +303,7 @@
             }
         });
 
+        // --- GAME SYSTEM CONTROLLERS ---
         document.getElementById('lock-game-btn').addEventListener('click', () => {
             const name = document.getElementById('player-name').value.trim();
             const t1 = s1.value; const t2 = s2.value;
@@ -310,6 +343,10 @@
                     if(keys.length > 0 && !currentCardId) {
                         currentCardId = keys[keys.length - 1];
                         renderActiveBoard();
+                    } else if (keys.length === 0) {
+                        // Clear board layout completely if no active cards exist
+                        document.getElementById("bingo-board").innerHTML = "";
+                        document.getElementById('leaderboard-container').innerHTML = "No active card selected...";
                     }
                 }
             });
@@ -318,15 +355,36 @@
         function renderTabs() {
             const container = document.getElementById('tabs-bar');
             container.innerHTML = Object.values(activeCardsList).map(c => `
-                <button class="tab-button ${c.cardId === currentCardId ? 'active' : ''}" data-id="${c.cardId}">
-                    ${c.match}
-                </button>
+                <div class="tab-button ${c.cardId === currentCardId ? 'active' : ''}" data-id="${c.cardId}">
+                    <span>${c.match}</span>
+                    <button class="delete-card-btn" data-delete-id="${c.cardId}">×</button>
+                </div>
             `).join("");
 
+            // Click listener for selecting active card layout tabs
             document.querySelectorAll('.tab-button').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    currentCardId = e.target.getAttribute('data-id');
+                    // Safety check to bypass tab triggers if they clicked the embed kill switch
+                    if (e.target.classList.contains('delete-card-btn') || e.target.parentElement.classList.contains('delete-card-btn')) return;
+                    currentCardId = btn.getAttribute('data-id');
                     renderActiveBoard();
+                    renderTabs();
+                });
+            });
+
+            // Active Kill Switch Handler (Issue 6)
+            document.querySelectorAll('.delete-card-btn').forEach(delBtn => {
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Shield parent layout wrappers from misfiring triggers
+                    const targetId = delBtn.getAttribute('data-id') || delBtn.parentElement.getAttribute('data-id');
+                    if (confirm("Are you sure you want to completely delete this game card and leave the lobby scoreboard?")) {
+                        const targetCard = activeCardsList[targetId];
+                        if (targetCard) {
+                            remove(ref(database, `${targetCard.lobby}/${targetId}`)); // Wipe data node from server channel
+                            remove(ref(database, `users/${userId}/cards/${targetId}`)); // Wipe account profile pointer
+                            if (currentCardId === targetId) currentCardId = "";
+                        }
+                    }
                 });
             });
         }
@@ -395,17 +453,21 @@
         function renderHistory() {
             const container = document.getElementById('history-container');
             const historyData = Object.values(activeCardsList);
-            if (historyData.length === 0) return;
+            if (historyData.length === 0) { container.innerHTML = "No historical card instances found."; return; }
 
             container.innerHTML = historyData.map(c => {
                 const isWon = c.completedLines > 0;
+                const isCurrent = c.cardId === currentCardId; // Determine if card is currently open on display
                 const base = c.board.filter(s => s.isSelected).length;
                 const score = base + (c.completedLines * 5);
                 const badgeClass = isWon ? "badge win" : "badge";
                 const badgeText = isWon ? `🏆 BINGO x${c.completedLines}` : "Active";
+                
+                // Add conditional visual cue class if card isn't currently running on panel screens (Issue 7)
+                const stateClass = isCurrent ? "" : "stale-card";
 
                 return `
-                    <div class='history-item'>
+                    <div class='history-item ${stateClass}'>
                         <span>⚽ ${c.match}</span>
                         <div>
                             <span class="${badgeClass}">${badgeText}</span>
