@@ -5,23 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>SQUAREUP: 2026 World Cup Edition</title>
     
+    <!-- Import Space Grotesk (Headers) and DM Sans (Body) Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
 
+    <!-- Include Canvas-Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         :root {
-            --bg: #000000; /* High Contrast Blackout */         
-            --border: #e9ecef;        
-            --text-main: #212529;     
-            --text-muted: #6c757d;    
-            --square-bg: #ffffff;     
-            --square-hover: #f1f3f5;  
-            --square-selected: #343a40; 
-            --free-space: #e9ecef;    
-            --accent: #2b6cb0;
+            --bg: #ffffff;             /* Darkest Value (Inverted Base) */         
+            --border: #7d39eb;         /* Neon Purple Accent */        
+            --text-main: #000000;      /* Lightest Value (Inverted Core Text) */     
+            --text-muted: #7d39eb;    
+            --square-bg: #000000;     
+            --square-hover: #1a1a1a;  
+            --square-selected: #7d39eb; 
+            --free-space: #1a1a1a;    
+            --accent: #7d39eb;
             --error: #e53e3e;
         }
 
@@ -52,25 +54,28 @@
             align-items: center; 
             justify-content: center; 
             text-align: center; 
-            color: #ffffff; 
+            color: var(--text-main); 
         }
-        p.subtitle { font-size: 1rem; margin: 0 0 20px 0; color: #a0aec0; font-weight: 500; text-align: center; }
+        p.subtitle { font-size: 1rem; margin: 0 0 20px 0; color: var(--accent); font-weight: 700; text-align: center; max-width: 460px; line-height: 1.4; }
 
         .widget-box {
-            background: white; padding: 18px; border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(255,255,255,0.05); margin-bottom: 20px;
+            background: #000000; padding: 18px; border-radius: 12px;
+            border: 2px solid var(--text-main);
+            margin-bottom: 20px;
             width: 100%; max-width: 460px; box-sizing: border-box;
+            color: #ffffff;
         }
 
         .input-group { margin-bottom: 12px; text-align: left; }
-        .input-group label { display: block; margin-bottom: 6px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+        .input-group label { display: block; margin-bottom: 6px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #ffffff; }
         .input-group input, .input-group select {
-            width: 100%; padding: 10px; border: 1px solid #dee2e6; border-radius: 6px;
-            font-family: 'DM Sans', sans-serif; box-sizing: border-box; font-size: 1rem; background-color: #f8f9fa;
+            width: 100%; padding: 10px; border: 2px solid var(--accent); border-radius: 6px;
+            font-family: 'DM Sans', sans-serif; box-sizing: border-box; font-size: 1rem; background-color: #1a1a1a;
+            color: #ffffff;
         }
-        .input-group input:focus { outline: none; border-color: var(--square-selected); background-color: #fff; }
+        .input-group input:focus { outline: none; border-color: #ffffff; background-color: #000000; }
 
-        .auth-toggle { font-size: 0.85rem; color: var(--accent); cursor: pointer; text-decoration: underline; margin-top: 10px; display: inline-block; }
+        .auth-toggle { font-size: 0.85rem; color: var(--accent); cursor: pointer; text-decoration: underline; margin-top: 10px; display: inline-block; font-weight: 700; }
         .error-message { color: var(--error); font-size: 0.85rem; margin-top: 5px; display: none; font-weight: 500; }
 
         /* Scrollable Match Strip Container Layout */
@@ -80,68 +85,69 @@
             scrollbar-width: thin; -webkit-overflow-scrolling: touch;
         }
         .tabs-container::-webkit-scrollbar { height: 5px; }
-        .tabs-container::-webkit-scrollbar-thumb { background-color: #4a5568; border-radius: 10px; }
+        .tabs-container::-webkit-scrollbar-thumb { background-color: var(--accent); border-radius: 10px; }
 
         .tab-button {
             display: inline-flex; align-items: center; gap: 8px;
-            padding: 8px 14px; background: #2d3748; border: none; border-radius: 20px;
+            padding: 8px 14px; background: #000000; border: 2px solid var(--accent); border-radius: 20px;
             font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.85rem;
-            cursor: pointer; white-space: nowrap; color: #a0aec0; transition: all 0.2s;
+            cursor: pointer; white-space: nowrap; color: #ffffff; transition: all 0.2s;
         }
-        .tab-button.active { background: #ffffff; color: #000000; }
+        .tab-button.active { background: var(--accent); color: #ffffff; border-color: var(--accent); }
         
         /* Delete Card Button Element inside tabs */
         .delete-card-btn {
-            background: rgba(255,255,255,0.15); border: none; border-radius: 50%;
+            background: rgba(255,255,255,0.2); border: none; border-radius: 50%;
             width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;
             font-size: 10px; color: inherit; cursor: pointer; font-weight: 700; padding: 0;
         }
-        .tab-button.active .delete-card-btn { background: rgba(0,0,0,0.15); }
-        .delete-card-btn:hover { background: #e53e3e !important; color: white !important; }
+        .delete-card-btn:hover { background: var(--error) !important; color: white !important; }
 
         .btn {
-            font-family: 'DM Sans', sans-serif; font-weight: 700; background-color: var(--text-main);
+            font-family: 'DM Sans', sans-serif; font-weight: 700; background-color: var(--accent);
             color: white; border: none; padding: 12px 28px; font-size: 0.95rem; cursor: pointer;
-            border-radius: 6px; display: inline-block; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); width: 100%;
+            border-radius: 6px; display: inline-block; width: 100%;
             text-transform: uppercase; letter-spacing: 0.5px;
         }
         .btn:active { transform: scale(0.97); }
-        .btn-secondary { background-color: var(--text-muted); margin-top: 8px; }
+        .btn-secondary { background-color: #333333; margin-top: 8px; border: 1px solid #555; }
 
         .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; max-width: 460px; margin: 0 auto 24px auto; }
         .square {
-            background-color: var(--square-bg); border: 1px solid var(--border); border-radius: 8px;
+            background-color: var(--square-bg); border: 2px solid #ffffff; border-radius: 8px;
             aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
             font-size: 0.8rem; font-weight: 700; line-height: 1.2; padding: 6px; cursor: pointer; box-sizing: border-box;
-            user-select: none;
+            color: #ffffff;
         }
-        .square.selected { background-color: var(--square-selected); color: white; text-decoration: line-through; }
-        .square.free-space { background-color: var(--free-space); }
+        .square.selected { background-color: var(--accent); color: white; border-color: var(--accent); text-decoration: line-through; }
+        .square.free-space { background-color: var(--free-space); border-color: var(--accent); color: var(--accent); }
 
-        .history-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #edf2f7; font-size: 0.95rem; align-items: center; }
+        .history-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #333; font-size: 0.95rem; align-items: center; color: #ffffff; }
         
         /* Inactive Game History Visual Blurs */
-        .history-item.stale-card { opacity: 0.55; background: #fdfdfd; filter: grayscale(20%); }
+        .history-item.stale-card { opacity: 0.4; filter: grayscale(50%); }
         
-        .badge { background: #edf2f7; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
-        .badge.win { background: #e2f8f0; color: #1a7f64; }
+        .badge { background: #333333; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; color: #ffffff; }
+        .badge.win { background: var(--accent); color: #ffffff; }
 
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000;
             opacity: 0; visibility: hidden; transition: all 0.3s ease;
         }
         .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal { background: white; padding: 30px 40px; border-radius: 16px; text-shadow: none; box-shadow: 0 20px 40px rgba(0,0,0,0.3); text-align: center; max-width: 80%; }
+        .modal { background: #000000; border: 3px solid var(--accent); padding: 30px 40px; border-radius: 16px; text-shadow: none; text-align: center; max-width: 80%; color: #ffffff; }
     </style>
 </head>
 <body>
 
     <h1>GET READY TO SQUARE IT UP!</h1>
-    <p class="subtitle">Login to generate your next card and keep track of your performance for the tournament as you compete against other players every game.</p>
+    <!-- Revised instruction text update -->
+    <p class="subtitle">Login to play, compete against other players, and track your scores over the tournament</p>
     
+    <!-- Authentication Widget Box (Defaults to Login Mode) -->
     <div class="widget-box" id="auth-card">
-        <h3 id="auth-title" style="margin-top: 0; font-size: 1.5rem;">ACCOUNT LOGIN</h3>
+        <h3 id="auth-title" style="margin-top: 0; font-size: 1.5rem; color: #ffffff;">ACCOUNT LOGIN</h3>
         <div class="input-group">
             <label>Email Address</label>
             <input type="email" id="auth-email" placeholder="e.g., marta10@worldcup.com">
@@ -155,11 +161,12 @@
         <span class="auth-toggle" id="auth-toggle-link">Need a new account? Sign Up</span>
     </div>
 
+    <!-- Match Card Generator Widget -->
     <div class="widget-box" id="setup-card" style="display: none;">
-        <h3 style="margin-top: 0; font-size: 1.5rem;">GENERATE MATCH CARD</h3>
+        <h3 style="margin-top: 0; font-size: 1.5rem; color: #ffffff;">GENERATE MATCH CARD</h3>
         <div class="input-group">
             <label>Your Scoreboard Name</label>
-            <input type="text" id="player-name" placeholder="e.g., Sinclair_Canada_12">
+            <input type="text" id="player-name" placeholder="e.g., Foudy_Julie_11">
         </div>
         <div style="display: flex; gap: 10px;">
             <div class="input-group" style="flex: 1;">
@@ -175,28 +182,34 @@
         <button class="btn btn-secondary" id="logout-btn">Log Out Account</button>
     </div>
 
+    <!-- Active Card Tabs Strip Wrapper -->
     <div class="tabs-container" id="tabs-bar"></div>
 
+    <!-- Active Bingo Grid -->
     <div class="grid" id="bingo-board"></div>
 
+    <!-- Live Scores Leaderboard Box -->
     <div class="widget-box" id="leaderboard-card" style="display: none;">
-        <h3>SCOREBOARD FOR THIS GAME</h3>
-        <div id="leaderboard-container" style="text-align: left; font-size: 1rem; color: var(--text-muted);">No active card selected...</div>
+        <h3 style="color: #ffffff;">SCOREBOARD FOR THIS GAME</h3>
+        <div id="leaderboard-container" style="text-align: left; font-size: 1rem; color: #a0aec0;">No active card selected...</div>
     </div>
 
+    <!-- User Profile History Track -->
     <div class="widget-box" id="history-card" style="display: none;">
-        <h3>YOUR PERMANENT MATCH ARCHIVE</h3>
-        <div id="history-container" style="text-align: left; font-size: 0.95rem; color: var(--text-muted);">No historical card instances found.</div>
+        <h3 style="color: #ffffff;">YOUR PERMANENT MATCH ARCHIVE</h3>
+        <div id="history-container" style="text-align: left; font-size: 0.95rem; color: #a0aec0;">No historical card instances found.</div>
     </div>
 
+    <!-- Win Modal Popup -->
     <div class="modal-overlay" id="bingo-modal">
         <div class="modal">
-            <h2 style="font-size: 3.5rem; margin: 0 0 10px 0;">BINGO</h2>
+            <h2 style="font-size: 3.5rem; margin: 0 0 10px 0; color: var(--accent);">BINGO</h2>
             <p id="modal-desc" style="font-size: 1.2rem; margin: 0 0 20px 0; font-weight: 500;">You cleared a line combination!</p>
             <button class="btn" onclick="closeModal()">Keep Playing for Multi-Bingo</button>
         </div>
     </div>
 
+    <!-- Firebase System Integration Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
@@ -236,11 +249,11 @@
         // Revised Structural Tile Pool Data
         const squarePoolRaw = [
             "Yellow Card", "Straight Red Card", "VAR Overturns Call", "VAR Confirms Call", "Header Goal", "Own Goal scored", "Non-Basic Goal Celebration",
-            "Penalty Kick Awarded", "Goal from Outside Box", "More than 2 Celeb sightings", "Fan Crying on Screen", "Coach Furiously Yelling", "Cute Kids on Screen",
-            "Elaborate Fan 'Fit", "Diva Down aka a dive", "Player with Tattoos", "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", 
-            "Game Goes to Extra Time", "Player with Cool Hair", "Match Ends 0-0 in Regular Time", "Shot or Header from a Corner",
-            "Woodwork Hit (Post/Bar)", "Sub Before Halftime", "Bicycle Kick Attempt", "More than 3 Offsides Calls", "More than 3 Corner Kicks", "More than 5 Min of Extra Time Added",
-            "Player Argues with Ref", "Goal Disallowed", "Breakaway Goal", "Nutmeg", "Coach in a Suit", "Game Goes to Extra Time", "Penalty Shootout"
+            "Penalty Kick Awarded", "More than 2 Celeb sightings", "Fan Crying on Screen", "Coach Furiously Yelling", "Cute Kids on Screen",
+            "Elaborate Fan 'Fit", "Diva Down aka a dive", "Player with Neck Tattoos", "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", 
+            "Game Goes to Extra Time", "Player with Undeniably Cool Hair", "Shot or Header from a Corner",
+            "Woodwork Hit (Post/Bar)", "Sub Before Halftime", "Bicycle Kick Attempt", "More than 3 Offsides Calls", "More than 3 Corner Kicks", ">5 Min of Extra Time Added",
+            "Player Argues with Ref", "Goal Disallowed", "Coach in a Suit", "Penalty Shootout"
         ];
 
         // Runtime Deduplication Execution Engine (Ensures 100% Unique Elements)
