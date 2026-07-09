@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>SQUAREUP: 2026 World Cup Edition</title>
     
-    <!-- Import Space Grotesk (Headers) and DM Sans (Body) Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
 
-    <!-- Include Canvas-Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
@@ -99,7 +97,7 @@
         .delete-card-btn {
             background: rgba(255,255,255,0.2); border: none; border-radius: 50%;
             width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;
-            font-size: 10px; color: inherit; cursor: pointer; font-weight: 700; padding: 0;
+            font-size: 10px; color: #ffffff; cursor: pointer; font-weight: 700; padding: 0;
         }
         .delete-card-btn:hover { background: var(--error) !important; color: white !important; }
 
@@ -141,10 +139,9 @@
 </head>
 <body>
 
-    <h1>GET READY TO SQUAREUP!</h1>
-    <p class="subtitle">Login to play, compete against other players, and track your tournament performance</p>
+    <h1>PREPARE TO SQUAREUP!</h1>
+    <p class="subtitle">Login to play, compete against other players, and track your scores all tournament</p>
     
-    <!-- Authentication Widget Box (Defaults to Login Mode) -->
     <div class="widget-box" id="auth-card">
         <h3 id="auth-title" style="margin-top: 0; font-size: 1.5rem; color: #ffffff;">ACCOUNT LOGIN</h3>
         <div class="input-group">
@@ -160,7 +157,6 @@
         <span class="auth-toggle" id="auth-toggle-link">Need a new account? Sign Up</span>
     </div>
 
-    <!-- Match Card Generator Widget -->
     <div class="widget-box" id="setup-card" style="display: none;">
         <h3 style="margin-top: 0; font-size: 1.5rem; color: #ffffff;">GENERATE MATCH CARD</h3>
         <div class="input-group">
@@ -181,25 +177,20 @@
         <button class="btn btn-secondary" id="logout-btn">Log Out Account</button>
     </div>
 
-    <!-- Active Card Tabs Strip Wrapper -->
     <div class="tabs-container" id="tabs-bar"></div>
 
-    <!-- Active Bingo Grid -->
     <div class="grid" id="bingo-board"></div>
 
-    <!-- Live Scores Leaderboard Box -->
     <div class="widget-box" id="leaderboard-card" style="display: none;">
         <h3 style="color: #ffffff;">SCOREBOARD FOR THIS GAME</h3>
         <div id="leaderboard-container" style="text-align: left; font-size: 1rem; color: #a0aec0;">No active card selected...</div>
     </div>
 
-    <!-- User Profile History Track -->
     <div class="widget-box" id="history-card" style="display: none;">
-        <h3>YOUR PERMANENT MATCH ARCHIVE</h3>
+        <h3 style="color: #ffffff;">YOUR PERMANENT MATCH ARCHIVE</h3>
         <div id="history-container" style="text-align: left; font-size: 0.95rem; color: #a0aec0;">No historical card instances found.</div>
     </div>
 
-    <!-- Win Modal Popup -->
     <div class="modal-overlay" id="bingo-modal">
         <div class="modal">
             <h2 style="font-size: 3.5rem; margin: 0 0 10px 0; color: var(--accent);">BINGO</h2>
@@ -208,13 +199,11 @@
         </div>
     </div>
 
-    <!-- Firebase System Integration Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-        // Verified Live 2026 Database Config Engine
         const firebaseConfig = {
             apiKey: "AIzaSyDZRaW_RxBu90MNBWkITahrHgUij8i9XJM",
             authDomain: "worldcup-2026-men.firebaseapp.com",
@@ -230,7 +219,6 @@
         const database = getDatabase(app);
         const auth = getAuth(app);
 
-        // Alphabetized Countries List Array
         const tournamentTeams = [
             { name: "Argentina" }, { name: "Australia" }, { name: "Austria" },
             { name: "Belgium" }, { name: "Bosnia and Herzegovina" }, { name: "Brazil" },
@@ -245,13 +233,12 @@
             { name: "Ukraine" }, { name: "USA" }
         ].sort((a,b) => a.name.localeCompare(b.name));
 
-        // Master Tile Pool Data
         const squarePoolRaw = [
-            "Yellow Card", "Straight Red Card", "VAR Overturns Call", "Header Goal", "Own Goal scored", "Non-Basic Goal Celebration",
+            "Yellow Card", "Straight Red Card", "VAR Overturns Call", "Header Goal", "Own Goal Scored", "Non-Basic Goal Celebration",
             "Penalty Kick Awarded", "More than 2 Celeb sightings", "Fan Crying on Screen", "Coach Furiously Yelling", "Cute Kids on Screen",
-            "Elaborate Fan 'Fit", "Diva Down aka a dive", "Player with Neck Tattoos", "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", 
-            "Game Goes to Extra Time", "Player with Cool Hair", "Set Piece Goal",
-            "Woodwork Hit (Post/Bar)", "Bicycle Kick Attempt", "More than 3 Offside Calls", "More than 3 Corner Kicks", "More than 5 Min of Extra Time",
+            "Elaborate Fan 'Fit", "Diva Down Dive", "Player with Neck Tattoos", "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", 
+            "Game Goes to Extra Time", "Player with Cool Hair", "Shot or Header from a Corner", "Keeper Enters Offensive Half",
+            "Woodwork Hit (Post/Bar)", "Sub Before Halftime", "Bicycle Kick Attempt", ">3 Offsides Calls", ">3 Corner Kicks", ">5 Min of Extra Time Added",
             "Player Argues with Ref", "Goal Disallowed", "Coach in a Suit", "Penalty Shootout"
         ];
 
@@ -264,11 +251,9 @@
         let isLoginMode = true; 
         let globalLobbiesMaxScores = {}; 
 
-        // Populate menus right away
         const s1 = document.getElementById('team-1'); const s2 = document.getElementById('team-2');
         tournamentTeams.forEach(t => { s1.add(new Option(t.name, t.name)); s2.add(new Option(t.name, t.name)); });
 
-        // --- AUTH PANEL DISPATCHERS ---
         const authToggleLink = document.getElementById('auth-toggle-link');
         const authTitle = document.getElementById('auth-title');
         const authSubmitBtn = document.getElementById('auth-submit-btn');
@@ -322,7 +307,6 @@
             }
         });
 
-        // --- MATRIX BOARD ENGINE ---
         document.getElementById('lock-game-btn').addEventListener('click', () => {
             const name = document.getElementById('player-name').value.trim();
             const t1 = s1.value; const t2 = s2.value;
@@ -403,14 +387,14 @@
 
             document.querySelectorAll('.tab-button').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('delete-card-btn') || e.target.parentElement.classList.contains('delete-card-btn')) return;
+                    if (e.target.classList.contains('delete-card-btn')) return;
                     currentCardId = btn.getAttribute('data-id');
                     renderActiveBoard();
                     renderTabs();
                 });
             });
 
-            // FIXED AND OPTIMIZED ATOMIC DELETION TRIGGER
+            // FIXED ISOLATED SELECTION DELETION MAPPER
             document.querySelectorAll('.delete-card-btn').forEach(delBtn => {
                 delBtn.addEventListener('click', (e) => {
                     e.stopPropagation(); 
@@ -418,13 +402,12 @@
                     if (confirm("Are you sure you want to completely delete this game card?")) {
                         const targetCard = activeCardsList[targetId];
                         if (targetCard) {
-                            let updates = {};
-                            updates[`${targetCard.lobby}/${targetId}`] = null;
-                            updates[`users/${userId}/cards/${targetId}`] = null;
+                            const lobbyPath = targetCard.lobby;
+                            // Clean up global references first to keep operations safe
+                            if (currentCardId === targetId) currentCardId = "";
                             
-                            update(ref(database), updates).then(() => {
-                                if (currentCardId === targetId) currentCardId = "";
-                            }).catch(console.error);
+                            remove(ref(database, `${lobbyPath}/${targetId}`)).catch(console.error);
+                            remove(ref(database, `users/${userId}/cards/${targetId}`)).catch(console.error);
                         }
                     }
                 });
@@ -454,6 +437,7 @@
 
                     let updates = {};
                     updates[`users/${userId}/cards/${currentCardId}/board/${idx}/isSelected`] = item.isSelected;
+                    updates不动 = updates;
                     updates[`users/${userId}/cards/${currentCardId}/completedLines`] = totalLines;
                     updates[`${activeCard.lobby}/${currentCardId}`] = { name: activeCard.name, score: runningScore };
                     
