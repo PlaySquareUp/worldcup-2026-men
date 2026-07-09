@@ -139,8 +139,8 @@
 </head>
 <body>
 
-    <h1>PREPARE TO SQUAREUP!</h1>
-    <p class="subtitle">Login to play, compete against other players, and track your scores all tournament</p>
+    <h1>PREPARE YOUR SQUARE!</h1>
+    <p class="subtitle">Login to play, compete against other players, and track your scores over the tournament</p>
     
     <div class="widget-box" id="auth-card">
         <h3 id="auth-title" style="margin-top: 0; font-size: 1.5rem; color: #ffffff;">ACCOUNT LOGIN</h3>
@@ -204,6 +204,7 @@
         import { getDatabase, ref, set, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
+        // Verified Live 2026 Database Config Engine
         const firebaseConfig = {
             apiKey: "AIzaSyDZRaW_RxBu90MNBWkITahrHgUij8i9XJM",
             authDomain: "worldcup-2026-men.firebaseapp.com",
@@ -219,6 +220,7 @@
         const database = getDatabase(app);
         const auth = getAuth(app);
 
+        // Alphabetized Countries List Array
         const tournamentTeams = [
             { name: "Argentina" }, { name: "Australia" }, { name: "Austria" },
             { name: "Belgium" }, { name: "Bosnia and Herzegovina" }, { name: "Brazil" },
@@ -233,12 +235,13 @@
             { name: "Ukraine" }, { name: "USA" }
         ].sort((a,b) => a.name.localeCompare(b.name));
 
+        // Master Tile Pool Data
         const squarePoolRaw = [
-            "Yellow Card", "Straight Red Card", "VAR Overturns Call", "Header Goal", "Own Goal Scored", "Non-Basic Goal Celebration",
-            "Penalty Kick Awarded", "More than 2 Celeb sightings", "Fan Crying on Screen", "Coach Furiously Yelling", "Cute Kids on Screen",
-            "Elaborate Fan 'Fit", "Diva Down Dive", "Player with Neck Tattoos", "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", 
-            "Game Goes to Extra Time", "Player with Cool Hair", "Shot or Header from a Corner", "Keeper Enters Offensive Half",
-            "Woodwork Hit (Post/Bar)", "Sub Before Halftime", "Bicycle Kick Attempt", ">3 Offsides Calls", ">3 Corner Kicks", ">5 Min of Extra Time Added",
+            "Yellow Card", "Straight Red Card", "VAR Overturns Call", "Header Goal", "Own Goal scored", "Non-Basic Goal Celebration",
+            "Penalty Kick Awarded", "<2 Celeb sightings", "Fan Crying on Screen", "Coach Furiously Yelling", "Cute Kids on Screen",
+            "Elaborate Fan 'Fit", "Diva Down aka a dive", "Player with Neck Tattoos", "Goal in First 5 Mins", "Stoppage Time Goal (90'+)", 
+            "Game Goes to Extra Time", "Player with Cool Hair", "Shot or Header from a Corner",
+            "Woodwork Hit (Post/Bar)", "Sub Before Halftime", "Bicycle Kick Attempt", "<3 Offsides Calls", "<3 Corner Kicks", "<5 Min of Extra Time Added",
             "Player Argues with Ref", "Goal Disallowed", "Coach in a Suit", "Penalty Shootout"
         ];
 
@@ -254,6 +257,7 @@
         const s1 = document.getElementById('team-1'); const s2 = document.getElementById('team-2');
         tournamentTeams.forEach(t => { s1.add(new Option(t.name, t.name)); s2.add(new Option(t.name, t.name)); });
 
+        // --- AUTH PANEL DISPATCHERS ---
         const authToggleLink = document.getElementById('auth-toggle-link');
         const authTitle = document.getElementById('auth-title');
         const authSubmitBtn = document.getElementById('auth-submit-btn');
@@ -307,228 +311,7 @@
             }
         });
 
+        // --- MATRIX BOARD ENGINE ---
         document.getElementById('lock-game-btn').addEventListener('click', () => {
             const name = document.getElementById('player-name').value.trim();
-            const t1 = s1.value; const t2 = s2.value;
-            if (!name) { alert("Please enter your name!"); return; }
-            if (t1 === t2) { alert("Select two different countries!"); return; }
-
-            const sortedTeams = [t1, t2].sort();
-            const lobbyName = `lobby_${sortedTeams[0].replace(/\s+/g, "")}_vs_${sortedTeams[1].replace(/\s+/g, "")}`;
-            
-            const cardId = "card_" + Date.now();
-            const shuffled = [...squarePool].sort(() => Math.random() - 0.5).slice(0, 24);
-            const generatedBoard = [];
-            let poolIdx = 0;
-            for (let i = 0; i < 25; i++) {
-                if (i === 12) generatedBoard.push({ text: "FREE SPACE\n⚽", isSelected: true, isFree: true });
-                else generatedBoard.push({ text: shuffled[poolIdx++], isSelected: false, isFree: false });
-            }
-
-            const cardPayload = { 
-                cardId, 
-                name, 
-                lobby: lobbyName, 
-                match: `${t1} vs ${t2}`, 
-                board: generatedBoard, 
-                completedLines: 0,
-                createdAt: Date.now() 
-            };
-            
-            set(ref(database, `users/${userId}/cards/${cardId}`), cardPayload);
-            set(ref(database, `${lobbyName}/${cardId}`), { name, score: 1 });
-
-            currentCardId = cardId;
-        });
-
-        function syncUserSessions() {
-            onValue(ref(database, `users/${userId}/cards`), snapshot => {
-                activeCardsList = snapshot.val() || {};
-                renderTabs();
-                
-                const fetchPromises = Object.values(activeCardsList).map(c => {
-                    return get(ref(database, c.lobby)).then(lobbySnap => {
-                        if (lobbySnap.exists()) {
-                            const scores = Object.values(lobbySnap.val()).map(p => p.score || 0);
-                            globalLobbiesMaxScores[c.lobby] = Math.max(...scores, 0);
-                        } else {
-                            globalLobbiesMaxScores[c.lobby] = 0;
-                        }
-                    });
-                });
-
-                Promise.all(fetchPromises).then(() => {
-                    renderHistory();
-                });
-                
-                if (currentCardId && activeCardsList[currentCardId]) {
-                    renderActiveBoard();
-                } else {
-                    const keys = Object.keys(activeCardsList);
-                    if(keys.length > 0 && !currentCardId) {
-                        currentCardId = keys[keys.length - 1];
-                        renderActiveBoard();
-                    } else if (keys.length === 0) {
-                        document.getElementById("bingo-board").innerHTML = "";
-                        document.getElementById('leaderboard-container').innerHTML = "No active card selected...";
-                    }
-                }
-            });
-        }
-
-        function renderTabs() {
-            const container = document.getElementById('tabs-bar');
-            container.innerHTML = Object.values(activeCardsList).map(c => `
-                <div class="tab-button ${c.cardId === currentCardId ? 'active' : ''}" data-id="${c.cardId}">
-                    <span>${c.match}</span>
-                    <button class="delete-card-btn" data-delete-id="${c.cardId}">×</button>
-                </div>
-            `).join("");
-
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('delete-card-btn')) return;
-                    currentCardId = btn.getAttribute('data-id');
-                    renderActiveBoard();
-                    renderTabs();
-                });
-            });
-
-            // FIXED ISOLATED SELECTION DELETION MAPPER
-            document.querySelectorAll('.delete-card-btn').forEach(delBtn => {
-                delBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); 
-                    const targetId = delBtn.getAttribute('data-delete-id');
-                    if (confirm("Are you sure you want to completely delete this game card?")) {
-                        const targetCard = activeCardsList[targetId];
-                        if (targetCard) {
-                            const lobbyPath = targetCard.lobby;
-                            // Clean up global references first to keep operations safe
-                            if (currentCardId === targetId) currentCardId = "";
-                            
-                            remove(ref(database, `${lobbyPath}/${targetId}`)).catch(console.error);
-                            remove(ref(database, `users/${userId}/cards/${targetId}`)).catch(console.error);
-                        }
-                    }
-                });
-            });
-        }
-
-        function renderActiveBoard() {
-            const activeCard = activeCardsList[currentCardId];
-            if (!activeCard) return;
-
-            document.getElementById('player-name').value = activeCard.name;
-            const container = document.getElementById("bingo-board");
-            container.innerHTML = "";
-
-            activeCard.board.forEach((item, idx) => {
-                const sq = document.createElement("div");
-                sq.className = `square ${item.isFree ? 'free-space' : ''} ${item.isSelected ? 'selected' : ''}`;
-                sq.innerText = item.text;
-
-                sq.addEventListener("click", () => {
-                    if (item.isFree) return;
-                    item.isSelected = !item.isSelected;
-                    
-                    const base = activeCard.board.filter(s => s.isSelected).length;
-                    const totalLines = countBingoLines(activeCard.board);
-                    const runningScore = base + (totalLines * 5);
-
-                    let updates = {};
-                    updates[`users/${userId}/cards/${currentCardId}/board/${idx}/isSelected`] = item.isSelected;
-                    updates不动 = updates;
-                    updates[`users/${userId}/cards/${currentCardId}/completedLines`] = totalLines;
-                    updates[`${activeCard.lobby}/${currentCardId}`] = { name: activeCard.name, score: runningScore };
-                    
-                    update(ref(database), updates);
-
-                    if (totalLines > activeCard.completedLines) {
-                        document.getElementById('modal-desc').innerText = `Bingo Line #${totalLines} unlocked! (+5 Bonus Points)`;
-                        triggerCelebration();
-                    }
-                });
-                container.appendChild(sq);
-            });
-
-            listenToLeaderboard(activeCard.lobby);
-        }
-
-        function countBingoLines(board) {
-            const matrix = [
-                [0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24],
-                [0,5,10,15,20], [1,6,11,16,21], [2,7,12,17,22], [3,8,13,18,23], [4,9,14,19,24],
-                [0,6,12,18,24], [4,8,12,16,20]
-            ];
-            return matrix.filter(line => line.every(i => board[i].isSelected)).length;
-        }
-
-        function listenToLeaderboard(lobbyPath) {
-            if (leaderboardUnsubscribe) leaderboardUnsubscribe();
-            
-            leaderboardUnsubscribe = onValue(ref(database, lobbyPath), snapshot => {
-                const records = snapshot.val() || {};
-                const sorted = Object.values(records).sort((a,b) => b.score - a.score);
-                const container = document.getElementById('leaderboard-container');
-                container.innerHTML = sorted.map(p => `
-                    <div class='history-item'><span>${p.name}</span><strong>${p.score} PTS</strong></div>
-                `).join("");
-            });
-        }
-
-        function renderHistory() {
-            const container = document.getElementById('history-container');
-            const historyData = Object.values(activeCardsList);
-            if (historyData.length === 0) { container.innerHTML = "No historical card instances found."; return; }
-
-            const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
-            const now = Date.now();
-
-            container.innerHTML = historyData.map(c => {
-                const isWon = c.completedLines > 0;
-                const isCurrent = c.cardId === currentCardId; 
-                const base = c.board.filter(s => s.isSelected).length;
-                const score = base + (c.completedLines * 5);
-                
-                const timeElapsed = now - (c.createdAt || now);
-                const isExpired = timeElapsed > TWENTY_FOUR_HOURS;
-
-                let badgeHTML = "";
-                if (isWon) {
-                    badgeHTML = `<span class="badge win">BINGO x${c.completedLines}</span>`;
-                } else if (!isExpired) {
-                    badgeHTML = `<span class="badge">Active</span>`;
-                }
-
-                const maxLobbyScore = globalLobbiesMaxScores[c.lobby] || 0;
-                const holdsHighScore = score >= maxLobbyScore && score > 1;
-                const trophyIcon = holdsHighScore ? '<span style="margin-right:4px;">🏆</span>' : '';
-
-                const stateClass = isCurrent ? "" : "stale-card";
-
-                return `
-                    <div class='history-item ${stateClass}'>
-                        <span>⚽ ${c.match}</span>
-                        <div>
-                            ${badgeHTML}
-                            <strong style="margin-left: 8px;">${trophyIcon}${score} PTS</strong>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        }
-
-        function triggerCelebration() {
-            let duration = 3 * 1000; let end = Date.now() + duration;
-            (function frame() {
-                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0, y: 0.8 } });
-                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1, y: 0.8 } });
-                if (Date.now() < end) requestAnimationFrame(frame);
-            }());
-            document.getElementById("bingo-modal").classList.add("active");
-        }
-
-        window.closeModal = () => document.getElementById("bingo-modal").classList.remove("active");
-    </script>
-</body>
-</html>
+            const t1 = s1.value; const
