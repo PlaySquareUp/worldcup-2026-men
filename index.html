@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>SQUAREUP: 2026 World Cup Edition</title>
     
-    <!-- Import Space Grotesk (Headers) and DM Sans (Body) Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
 
-    <!-- Include Canvas-Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
@@ -191,17 +189,14 @@
 </head>
 <body>
 
-    <!-- Identity Navigation Matrix Hub -->
     <div class="profile-row">
         <div>Player Name: <span id="identity-status-label" class="user-badge">Guest Player</span></div>
         <div id="auth-header-action" class="auth-trigger-btn" onclick="openAuthModal()">Login / Sign Up</div>
     </div>
 
-    <!-- Updated Overhauled Header Typography -->
     <h1>PREPARE THE SQUARES!</h1>
     <p class="subtitle">Find the game, get your card, and start squaring!</p>
 
-    <!-- Match Card Generator Widget -->
     <div class="widget-box" id="setup-card">
         <h3 style="margin-top: 0; font-size: 1.3rem; color: #ffffff;">GENERATE MATCH CARD</h3>
         <div style="display: flex; gap: 10px;">
@@ -215,9 +210,8 @@
             </div>
         </div>
         
-        <!-- Coordinated Shared Layouts Selector Switch Engine -->
         <div class="toggle-group">
-            <span class="toggle-label">Sync Layout with Friend Group</span>
+            <span class="toggle-label">Play With Friends</span>
             <label class="switch">
                 <input type="checkbox" id="sync-layout-toggle">
                 <span class="slider"></span>
@@ -229,30 +223,24 @@
             <input type="text" id="layout-seed-code" placeholder="e.g., BAR2026">
         </div>
 
-        <!-- Revised Call to Action Button -->
         <button class="btn" id="lock-game-btn">Start Playing Now</button>
         <button class="btn btn-secondary" id="logout-btn" style="display: none;">Log Out Account</button>
     </div>
 
-    <!-- Active Card Navigation Tabs Strip -->
     <div class="tabs-container" id="tabs-bar"></div>
 
-    <!-- Active Physical Springs Bingo Grid -->
     <div class="grid" id="bingo-board"></div>
 
-    <!-- Live Scores Leaderboard Box -->
     <div class="widget-box" id="leaderboard-card" style="display: none;">
         <h3 style="color: #ffffff; margin-top: 0;">SCOREBOARD FOR THIS GAME</h3>
         <div id="leaderboard-container" style="text-align: left; font-size: 1rem; color: #a0aec0;">No active card selected...</div>
     </div>
 
-    <!-- User Profile History Track (Always Available Layout Container) -->
     <div class="widget-box" id="history-card">
         <h3 style="color: #ffffff; margin-top: 0;">YOUR PERMANENT MATCH ARCHIVE</h3>
         <div id="history-container" style="text-align: left; font-size: 0.95rem; color: #a0aec0;">No historical card instances found.</div>
     </div>
 
-    <!-- Native-Styled Modal Overlay for Authentication Transitions -->
     <div class="modal-overlay" id="auth-modal">
         <div class="modal">
             <h3 id="auth-title" style="margin-top: 0; font-size: 1.4rem;">CREATE ACCOUNT</h3>
@@ -276,7 +264,6 @@
         </div>
     </div>
 
-    <!-- Win Notification Popups -->
     <div class="modal-overlay" id="bingo-modal">
         <div class="modal">
             <h2 style="font-size: 3.5rem; margin: 0 0 10px 0; color: var(--accent);">BINGO</h2>
@@ -285,7 +272,6 @@
         </div>
     </div>
 
-    <!-- Firebase System Integration Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
@@ -367,361 +353,3 @@
                 renderHistory();
                 if(currentCardId && activeCardsList[currentCardId]) {
                     renderActiveBoard();
-                } else {
-                    const keys = Object.keys(activeCardsList);
-                    if(keys.length > 0) { currentCardId = keys[0]; renderActiveBoard(); }
-                }
-            }
-        }
-
-        const authToggleLink = document.getElementById('auth-toggle-link');
-        const authTitle = document.getElementById('auth-title');
-        const authSubmitBtn = document.getElementById('auth-submit-btn');
-        const errorDiv = document.getElementById('auth-error');
-
-        authToggleLink.addEventListener('click', () => {
-            isLoginMode = !isLoginMode;
-            errorDiv.style.display = "none";
-            if(isLoginMode) {
-                authTitle.innerText = "ACCOUNT LOGIN";
-                authSubmitBtn.innerText = "Log In";
-                authToggleLink.innerText = "Need a new profile? Sign Up";
-                document.getElementById('username-group').style.display = "none";
-            } else {
-                authTitle.innerText = "CREATE ACCOUNT";
-                authSubmitBtn.innerText = "Sign Up";
-                authToggleLink.innerText = "Already have an account? Log In";
-                document.getElementById('username-group').style.display = "block";
-            }
-        });
-
-        authSubmitBtn.addEventListener('click', () => {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const username = document.getElementById('auth-username').value.trim();
-            errorDiv.style.display = "none";
-
-            if(!email || !password || (!isLoginMode && !username)) { displayError("Please complete all fields."); return; }
-
-            if(isLoginMode) {
-                signInWithEmailAndPassword(auth, email, password)
-                    .then(() => closeAuthModal())
-                    .catch(err => displayError(err.message));
-            } else {
-                createUserWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => {
-                        set(ref(database, `users/${userCredential.user.uid}/profile`), { username: username });
-                        const guestCards = JSON.parse(localStorage.getItem("squareup_guest_cards") || "{}");
-                        Object.keys(guestCards).forEach(cid => {
-                            guestCards[cid].name = username; 
-                            set(ref(database, `users/${userCredential.user.uid}/cards/${cid}`), guestCards[cid]);
-                            set(ref(database, `${guestCards[cid].lobby}/${cid}`), { name: username, score: 1 });
-                        });
-                        localStorage.removeItem("squareup_guest_cards"); 
-                        closeAuthModal();
-                    })
-                    .catch(err => displayError(err.message));
-            }
-        });
-
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            signOut(auth).then(() => { location.reload(); });
-        });
-
-        function displayError(msg) { errorDiv.innerText = msg; errorDiv.style.display = "block"; }
-
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                userId = user.uid;
-                isGuestAccount = false;
-                document.getElementById('logout-btn').style.display = "block";
-                document.getElementById('leaderboard-card').style.display = "block";
-                
-                onValue(ref(database, `users/${userId}/profile`), snap => {
-                    const prof = snap.val() || {};
-                    userDisplayName = prof.username || "Player";
-                    document.getElementById('identity-status-label').innerText = `@${userDisplayName}`;
-                    document.getElementById('auth-header-action').style.display = "none";
-                    syncUserSessions();
-                });
-            } else {
-                isGuestAccount = true;
-                userDisplayName = "Guest";
-                document.getElementById('identity-status-label').innerText = "Guest Player";
-                document.getElementById('auth-header-action').style.display = "block";
-                loadGuestSessionData();
-            }
-        });
-
-        document.getElementById('lock-game-btn').addEventListener('click', () => {
-            const t1 = s1.value; const t2 = s2.value;
-            if (t1 === t2) { alert("Select two different countries!"); return; }
-
-            const sortedTeams = [t1, t2].sort();
-            const lobbyName = `lobby_${sortedTeams[0].replace(/\s+/g, "")}_vs_${sortedTeams[1].replace(/\s+/g, "")}`;
-            
-            // Duplicate Protection Rule Check Logic
-            const existingMatchCard = Object.values(activeCardsList).find(c => c.lobby === lobbyName);
-            if(existingMatchCard) {
-                currentCardId = existingMatchCard.cardId;
-                renderTabs();
-                renderActiveBoard();
-                return;
-            }
-
-            const cardId = "card_" + Date.now();
-            const syncToggle = document.getElementById('sync-layout-toggle').checked;
-            const seedCode = document.getElementById('layout-seed-code').value.trim().toUpperCase();
-            
-            let shuffled;
-            if(syncToggle && seedCode.length > 0) {
-                shuffled = seededRandomShuffle(squarePool, seedCode).slice(0, 24);
-            } else {
-                shuffled = [...squarePool].sort(() => Math.random() - 0.5).slice(0, 24);
-            }
-
-            const generatedBoard = [];
-            let poolIdx = 0;
-            for (let i = 0; i < 25; i++) {
-                if (i === 12) generatedBoard.push({ text: "FREE SPACE\n⚽", isSelected: true, isFree: true });
-                else generatedBoard.push({ text: shuffled[poolIdx++], isSelected: false, isFree: false });
-            }
-
-            const cardPayload = { 
-                cardId, 
-                name: userDisplayName, 
-                lobby: lobbyName, 
-                match: `${t1} vs ${t2}`, 
-                board: generatedBoard, 
-                completedLines: 0,
-                createdAt: Date.now() 
-            };
-            
-            if(isGuestAccount) {
-                // Prepend item into runtime list context safely
-                const updatedCache = { [cardId]: cardPayload, ...activeCardsList };
-                activeCardsList = updatedCache;
-                localStorage.setItem("squareup_guest_cards", JSON.stringify(activeCardsList));
-                currentCardId = cardId;
-                renderTabs();
-                renderHistory();
-                renderActiveBoard();
-            } else {
-                set(ref(database, `users/${userId}/cards/${cardId}`), cardPayload);
-                set(ref(database, `${lobbyName}/${cardId}`), { name: userDisplayName, score: 1 });
-                currentCardId = cardId;
-            }
-        });
-
-        function syncUserSessions() {
-            onValue(ref(database, `users/${userId}/cards`), snapshot => {
-                const incomingData = snapshot.val() || {};
-                
-                // Sort collections dynamically so newly built nodes stay on left array channels
-                const sortedKeys = Object.keys(incomingData).sort((a,b) => b.localeCompare(a));
-                activeCardsList = {};
-                sortedKeys.forEach(k => { activeCardsList[k] = incomingData[k]; });
-
-                renderTabs();
-                
-                const fetchPromises = Object.values(activeCardsList).map(c => {
-                    return get(ref(database, c.lobby)).then(lobbySnap => {
-                        globalLobbiesMaxScores[c.lobby] = lobbySnap.exists() 
-                            ? Math.max(...Object.values(lobbySnap.val()).map(p => p.score || 0), 0) 
-                            : 0;
-                    });
-                });
-
-                Promise.all(fetchPromises).then(() => renderHistory());
-                
-                if (currentCardId && activeCardsList[currentCardId]) {
-                    renderActiveBoard();
-                } else {
-                    if (sortedKeys.length > 0 && !currentCardId) {
-                        currentCardId = sortedKeys[0];
-                        renderActiveBoard();
-                    } else if (sortedKeys.length === 0) {
-                        document.getElementById("bingo-board").innerHTML = "";
-                    }
-                }
-            });
-        }
-
-        function renderTabs() {
-            const container = document.getElementById('tabs-bar');
-            // Mapping directly preserves sorted order state outputs
-            container.innerHTML = Object.values(activeCardsList).map(c => `
-                <div class="tab-button ${c.cardId === currentCardId ? 'active' : ''}" data-id="${c.cardId}">
-                    <span>${c.match}</span>
-                    <button class="delete-card-btn" data-delete-id="${c.cardId}">×</button>
-                </div>
-            `).join("");
-
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('delete-card-btn')) return;
-                    currentCardId = btn.getAttribute('data-id');
-                    renderActiveBoard();
-                    renderTabs();
-                });
-            });
-
-            document.querySelectorAll('.delete-card-btn').forEach(delBtn => {
-                delBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); 
-                    const targetId = delBtn.getAttribute('data-delete-id');
-                    if (confirm("Are you sure you want to completely delete this game card?")) {
-                        if (currentCardId === targetId) currentCardId = "";
-                        if(isGuestAccount) {
-                            delete activeCardsList[targetId];
-                            localStorage.setItem("squareup_guest_cards", JSON.stringify(activeCardsList));
-                            renderTabs(); renderHistory();
-                            document.getElementById("bingo-board").innerHTML = "";
-                        } else {
-                            const targetCard = activeCardsList[targetId];
-                            if (targetCard) {
-                                remove(ref(database, `${targetCard.lobby}/${targetId}`));
-                                remove(ref(database, `users/${userId}/cards/${targetId}`));
-                            }
-                        }
-                    }
-                });
-            });
-        }
-
-        function renderActiveBoard() {
-            const activeCard = activeCardsList[currentCardId];
-            if (!activeCard) return;
-
-            const container = document.getElementById("bingo-board");
-            container.innerHTML = "";
-
-            activeCard.board.forEach((item, idx) => {
-                const sq = document.createElement("div");
-                sq.className = `square ${item.isFree ? 'free-space' : ''} ${item.isSelected ? 'selected' : ''}`;
-                sq.innerText = item.text;
-
-                sq.addEventListener("click", () => {
-                    if (item.isFree) return;
-                    item.isSelected = !item.isSelected;
-                    
-                    const base = activeCard.board.filter(s => s.isSelected).length;
-                    const totalLines = countBingoLines(activeCard.board);
-                    const runningScore = base + (totalLines * 5);
-
-                    const targetScoreRow = document.getElementById(`score-row-${currentCardId}`);
-                    if(targetScoreRow) {
-                        targetScoreRow.classList.add('flash-active');
-                        setTimeout(() => targetScoreRow.classList.remove('flash-active'), 400);
-                    }
-
-                    if(isGuestAccount) {
-                        activeCardsList[currentCardId].board[idx].isSelected = item.isSelected;
-                        activeCardsList[currentCardId].completedLines = totalLines;
-                        localStorage.setItem("squareup_guest_cards", JSON.stringify(activeCardsList));
-                        renderActiveBoard();
-                        renderHistory();
-                    } else {
-                        let updates = {};
-                        updates[`users/${userId}/cards/${currentCardId}/board/${idx}/isSelected`] = item.isSelected;
-                        updates[`users/${userId}/cards/${currentCardId}/completedLines`] = totalLines;
-                        updates[`${activeCard.lobby}/${currentCardId}`] = { name: userDisplayName, score: runningScore };
-                        update(ref(database), updates);
-                    }
-
-                    if (totalLines > activeCard.completedLines) {
-                        document.getElementById('modal-desc').innerText = `Bingo Line #${totalLines} unlocked! (+5 Bonus Points)`;
-                        triggerCelebration();
-                    }
-                });
-                container.appendChild(sq);
-            });
-
-            if(!isGuestAccount) listenToLeaderboard(activeCard.lobby);
-        }
-
-        function countBingoLines(board) {
-            const matrix = [
-                [0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24],
-                [0,5,10,15,20], [1,6,11,16,21], [2,7,12,17,22], [3,8,13,18,23], [4,9,14,19,24],
-                [0,6,12,18,24], [4,8,12,16,20]
-            ];
-            return matrix.filter(line => line.every(i => board[i].isSelected)).length;
-        }
-
-        function listenToLeaderboard(lobbyPath) {
-            if (leaderboardUnsubscribe) leaderboardUnsubscribe();
-            leaderboardUnsubscribe = onValue(ref(database, lobbyPath), snapshot => {
-                const records = snapshot.val() || {};
-                const sorted = Object.values(records).sort((a,b) => b.score - a.score);
-                document.getElementById('leaderboard-container').innerHTML = sorted.map(p => `
-                    <div class='history-item'><span>${p.name}</span><strong>${p.score} PTS</strong></div>
-                `).join("");
-            });
-        }
-
-        function renderHistory() {
-            const container = document.getElementById('history-container');
-            
-            // Informative Locked Callout Wrapper Mode for Guest Traffic Profiles
-            if (isGuestAccount) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 10px 5px; color: #a0aec0; font-size: 0.88rem; line-height: 1.4;">
-                        <span style="font-size: 1.5rem; display: block; margin-bottom: 4px;">🔒</span>
-                        Permanent History Archive is locked. Create a free account to store your lifetime tournament badges and high score trophies!
-                    </div>`;
-                return;
-            }
-
-            const historyData = Object.values(activeCardsList);
-            if (historyData.length === 0) { container.innerHTML = "No historical card instances found."; return; }
-
-            const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
-            const now = Date.now();
-
-            container.innerHTML = historyData.map(c => {
-                const isWon = c.completedLines > 0;
-                const isCurrent = c.cardId === currentCardId; 
-                const base = c.board.filter(s => s.isSelected).length;
-                const score = base + (c.completedLines * 5);
-                
-                const timeElapsed = now - (c.createdAt || now);
-                const isExpired = timeElapsed > TWENTY_FOUR_HOURS;
-
-                let badgeHTML = "";
-                if (isWon) { badgeHTML = `<span class="badge win">BINGO x${c.completedLines}</span>`; } 
-                else if (!isExpired) { badgeHTML = `<span class="badge">Active</span>`; }
-
-                const maxLobbyScore = globalLobbiesMaxScores[c.lobby] || 0;
-                const holdsHighScore = score >= maxLobbyScore && score > 1;
-                const trophyIcon = holdsHighScore ? '<span style="margin-right:4px;">🏆</span>' : '';
-                const stateClass = isCurrent ? "" : "stale-card";
-
-                return `
-                    <div class='history-item ${stateClass}' id="score-row-${c.cardId}">
-                        <span>⚽ ${c.match}</span>
-                        <div>
-                            ${badgeHTML}
-                            <strong style="margin-left: 8px;">${trophyIcon}${score} PTS</strong>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        }
-
-        function triggerCelebration() {
-            let duration = 2.5 * 1000; let end = Date.now() + duration;
-            (function frame() {
-                confetti({ particleCount: 4, angle: 60, spread: 50, origin: { x: 0, y: 0.85 } });
-                confetti({ particleCount: 4, angle: 120, spread: 50, origin: { x: 1, y: 0.85 } });
-                if (Date.now() < end) requestAnimationFrame(frame);
-            }());
-            document.getElementById("bingo-modal").classList.add("active");
-        }
-
-        window.openAuthModal = () => document.getElementById('auth-modal').classList.add('active');
-        window.closeAuthModal = () => document.getElementById('auth-modal').classList.remove('active');
-        window.closeBingoModal = () => document.getElementById("bingo-modal").classList.remove("active");
-    </script>
-</body>
-</html>
