@@ -134,19 +134,53 @@
         .tabs-container::-webkit-scrollbar { height: 4px; }
         .tabs-container::-webkit-scrollbar-thumb { background-color: var(--accent); border-radius: 10px; }
 
-        /* Restored to Solid Filled Aesthetic Paradigm Style */
+        /* Permanent Tab Execution Overlap Fix */
         .tab-button {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 6px 12px; background: #000000; border: 2px solid var(--accent); border-radius: 20px;
-            font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.8rem;
-            cursor: pointer; white-space: nowrap; color: #ffffff; transition: all 0.2s;
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 12px;
+            padding: 6px 14px; 
+            background: #000000; 
+            border: 2px solid var(--accent); 
+            border-radius: 20px;
+            font-family: 'DM Sans', sans-serif; 
+            font-weight: 700; 
+            font-size: 0.8rem;
+            cursor: pointer; 
+            white-space: nowrap; 
+            color: #ffffff; 
+            transition: all 0.2s;
+            max-width: 180px; 
         }
+        
+        .tab-text-node {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex-grow: 1; 
+            pointer-events: none; 
+        }
+        
         .tab-button.active { background: var(--accent); color: #ffffff; border-color: var(--accent); box-shadow: 0 0 10px rgba(125, 57, 235, 0.6); }
         
         .delete-card-btn {
-            background: rgba(255,255,255,0.2); border: none; border-radius: 50%;
-            width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;
-            font-size: 10px; color: #ffffff; cursor: pointer; font-weight: 700; padding: 0;
+            background: rgba(255,255,255,0.2); 
+            border: none; 
+            border-radius: 50%;
+            width: 18px; 
+            height: 18px; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center;
+            font-size: 11px; 
+            color: #ffffff; 
+            cursor: pointer; 
+            font-weight: 700; 
+            padding: 0;
+            flex-shrink: 0; 
+            position: relative;
+            z-index: 10; 
         }
         .delete-card-btn:hover { background: var(--error) !important; color: white !important; }
 
@@ -334,6 +368,7 @@
         let currentCardId = ""; 
         let leaderboardUnsubscribe = null;
         let isLoginMode = false; 
+        let isClaimMode = false; 
         let globalLobbiesMaxScores = {}; 
 
         document.getElementById('sync-layout-toggle').addEventListener('change', (e) => {
@@ -399,6 +434,19 @@
             const username = document.getElementById('auth-username').value.trim();
             errorDiv.style.display = "none";
 
+            // CLAIM HANDLE OPERATION INTERCEPT INTERPOLATOR
+            if (isClaimMode) {
+                if (!username) { displayError("Please enter a username handle."); return; }
+                set(ref(database, `users/${userId}/profile`), { username: username })
+                    .then(() => {
+                        isClaimMode = false;
+                        document.getElementById('auth-toggle-link').style.display = "inline-block"; 
+                        closeAuthModal();
+                    })
+                    .catch(err => displayError(err.message));
+                return; 
+            }
+
             if(!email || !password || (!isLoginMode && !username)) { displayError("Please complete all fields."); return; }
 
             if(isLoginMode) {
@@ -443,14 +491,19 @@
                 onValue(ref(database, `users/${userId}/profile`), snap => {
                     const prof = snap.val() || {};
                     
+                    // LEGACY USER SYSTEM INTERCEPT ROUTER
                     if (!prof.username) {
                         userDisplayName = "Player";
+                        isClaimMode = true;
                         document.getElementById('identity-status-label').innerText = `@${userDisplayName}`;
                         document.getElementById('auth-title').innerText = "CLAIM YOUR USERNAME";
+                        document.getElementById('auth-submit-btn').innerText = "Save Handle";
                         document.getElementById('username-group').style.display = "block";
+                        document.getElementById('auth-toggle-link').style.display = "none";
                         openAuthModal();
                     } else {
                         userDisplayName = prof.username;
+                        isClaimMode = false;
                         document.getElementById('identity-status-label').innerText = `@${userDisplayName}`;
                         document.getElementById('auth-header-action').style.display = "none";
                     }
@@ -459,6 +512,7 @@
             } else {
                 isGuestAccount = true;
                 userDisplayName = "Guest";
+                isClaimMode = false;
                 document.getElementById('identity-status-label').innerText = "Guest Player";
                 document.getElementById('auth-header-action').style.display = "block";
                 loadGuestSessionData();
@@ -559,7 +613,7 @@
             const container = document.getElementById('tabs-bar');
             container.innerHTML = Object.values(activeCardsList).map(c => `
                 <div class="tab-button ${c.cardId === currentCardId ? 'active' : ''}" data-id="${c.cardId}">
-                    <span>${c.match}</span>
+                    <span class="tab-text-node">${c.match}</span>
                     <button class="delete-card-btn" data-delete-id="${c.cardId}">×</button>
                 </div>
             `).join("");
@@ -667,6 +721,7 @@
             });
         }
 
+        // PERMANENT HISTORICAL MISMATCH MATRIX REMODELER
         function renderHistory() {
             const container = document.getElementById('history-container');
             
