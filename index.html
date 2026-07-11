@@ -134,7 +134,7 @@
         .tabs-container::-webkit-scrollbar { height: 4px; }
         .tabs-container::-webkit-scrollbar-thumb { background-color: var(--accent); border-radius: 10px; }
 
-        /* Permanent Tab Execution Overlap Fix */
+        /* Permanent Tab Execution Overlap Fix Styles */
         .tab-button {
             display: inline-flex; 
             align-items: center; 
@@ -159,7 +159,6 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             flex-grow: 1; 
-            pointer-events: none; 
         }
         
         .tab-button.active { background: var(--accent); color: #ffffff; border-color: var(--accent); box-shadow: 0 0 10px rgba(125, 57, 235, 0.6); }
@@ -609,45 +608,18 @@
             });
         }
 
+        // DYNAMIC INLINE-SNIPER BINDING RENDER TILES
         function renderTabs() {
             const container = document.getElementById('tabs-bar');
-            container.innerHTML = Object.values(activeCardsList).map(c => `
-                <div class="tab-button ${c.cardId === currentCardId ? 'active' : ''}" data-id="${c.cardId}">
-                    <span class="tab-text-node">${c.match}</span>
-                    <button class="delete-card-btn" data-delete-id="${c.cardId}">×</button>
-                </div>
-            `).join("");
-
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('delete-card-btn')) return;
-                    currentCardId = btn.getAttribute('data-id');
-                    renderActiveBoard();
-                    renderTabs();
-                });
-            });
-
-            document.querySelectorAll('.delete-card-btn').forEach(delBtn => {
-                delBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); 
-                    const targetId = delBtn.getAttribute('data-delete-id');
-                    if (confirm("Are you sure you want to completely delete this game card?")) {
-                        if (currentCardId === targetId) currentCardId = "";
-                        if(isGuestAccount) {
-                            delete activeCardsList[targetId];
-                            localStorage.setItem("squareup_guest_cards", JSON.stringify(activeCardsList));
-                            renderTabs(); renderHistory();
-                            document.getElementById("bingo-board").innerHTML = "";
-                        } else {
-                            const targetCard = activeCardsList[targetId];
-                            if (targetCard) {
-                                remove(ref(database, `${targetCard.lobby}/${targetId}`));
-                                remove(ref(database, `users/${userId}/cards/${targetId}`));
-                            }
-                        }
-                    }
-                });
-            });
+            container.innerHTML = Object.values(activeCardsList).map(c => {
+                const isActive = c.cardId === currentCardId ? 'active' : '';
+                return `
+                    <div class="tab-button ${isActive}" onclick="handleTabSwitch('${c.cardId}', event)">
+                        <span class="tab-text-node">${c.match}</span>
+                        <button class="delete-card-btn" onclick="handleTabDelete('${c.cardId}', event)">×</button>
+                    </div>
+                `;
+            }).join("");
         }
 
         function renderActiveBoard() {
@@ -721,7 +693,6 @@
             });
         }
 
-        // PERMANENT HISTORICAL MISMATCH MATRIX REMODELER
         function renderHistory() {
             const container = document.getElementById('history-container');
             
@@ -779,6 +750,35 @@
             }());
             document.getElementById("bingo-modal").classList.add("active");
         }
+
+        // GLOBAL INLINE ROUTE ACCESS REGISTRATION
+        window.handleTabSwitch = (cardId, event) => {
+            currentCardId = cardId;
+            renderActiveBoard();
+            renderTabs();
+        };
+
+        window.handleTabDelete = (targetId, event) => {
+            event.stopPropagation(); 
+            event.preventDefault();  
+            
+            if (confirm("Are you sure you want to completely delete this game card?")) {
+                if (currentCardId === targetId) currentCardId = "";
+                if (isGuestAccount) {
+                    delete activeCardsList[targetId];
+                    localStorage.setItem("squareup_guest_cards", JSON.stringify(activeCardsList));
+                    renderTabs(); 
+                    renderHistory();
+                    document.getElementById("bingo-board").innerHTML = "";
+                } else {
+                    const targetCard = activeCardsList[targetId];
+                    if (targetCard) {
+                        remove(ref(database, `${targetCard.lobby}/${targetId}`));
+                        remove(ref(database, `users/${userId}/cards/${targetId}`));
+                    }
+                }
+            }
+        };
 
         window.openAuthModal = () => document.getElementById('auth-modal').classList.add('active');
         window.closeAuthModal = () => document.getElementById('auth-modal').classList.remove('active');
