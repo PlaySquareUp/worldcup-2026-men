@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>SQUAREUP: 2026 World Cup Edition</title>
     
+    <!-- Import Space Grotesk (Headers) and DM Sans (Body) Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet">
 
+    <!-- Include Canvas-Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
@@ -132,6 +134,7 @@
         .tabs-container::-webkit-scrollbar { height: 4px; }
         .tabs-container::-webkit-scrollbar-thumb { background-color: var(--accent); border-radius: 10px; }
 
+        /* Restored to Solid Filled Aesthetic Paradigm Style */
         .tab-button {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 6px 12px; background: #000000; border: 2px solid var(--accent); border-radius: 20px;
@@ -146,6 +149,15 @@
             font-size: 10px; color: #ffffff; cursor: pointer; font-weight: 700; padding: 0;
         }
         .delete-card-btn:hover { background: var(--error) !important; color: white !important; }
+
+        .btn {
+            font-family: 'DM Sans', sans-serif; font-weight: 700; background-color: var(--accent);
+            color: white; border: none; padding: 12px 28px; font-size: 0.95rem; cursor: pointer;
+            border-radius: 6px; display: inline-block; width: 100%;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-secondary { background-color: #333333; margin-top: 8px; border: 1px solid #555; }
 
         .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: 100%; max-width: 460px; margin: 0 auto 16px auto; }
         
@@ -180,6 +192,7 @@
 </head>
 <body>
 
+    <!-- Identity Navigation Matrix Hub -->
     <div class="profile-row">
         <div>Player Name: <span id="identity-status-label" class="user-badge">Guest Player</span></div>
         <div id="auth-header-action" class="auth-trigger-btn" onclick="openAuthModal()">Login / Sign Up</div>
@@ -188,6 +201,7 @@
     <h1>PREPARE THE SQUARES!</h1>
     <p class="subtitle">Find the game, get your card, and start squaring!</p>
 
+    <!-- Match Card Generator Widget -->
     <div class="widget-box" id="setup-card">
         <h3 style="margin-top: 0; font-size: 1.3rem; color: #ffffff;">GENERATE MATCH CARD</h3>
         <div style="display: flex; gap: 10px;">
@@ -218,20 +232,25 @@
         <button class="btn btn-secondary" id="logout-btn" style="display: none;">Log Out Account</button>
     </div>
 
+    <!-- Active Card Navigation Tabs Strip -->
     <div class="tabs-container" id="tabs-bar"></div>
 
+    <!-- Active Physical Springs Bingo Grid -->
     <div class="grid" id="bingo-board"></div>
 
+    <!-- Live Scores Leaderboard Box -->
     <div class="widget-box" id="leaderboard-card" style="display: none;">
         <h3 style="color: #ffffff; margin-top: 0;">SCOREBOARD FOR THIS GAME</h3>
         <div id="leaderboard-container" style="text-align: left; font-size: 1rem; color: #a0aec0;">No active card selected...</div>
     </div>
 
+    <!-- User Profile History Track -->
     <div class="widget-box" id="history-card">
         <h3 style="color: #ffffff; margin-top: 0;">YOUR PERMANENT MATCH ARCHIVE</h3>
         <div id="history-container" style="text-align: left; font-size: 0.95rem; color: #a0aec0;">No historical card instances found.</div>
     </div>
 
+    <!-- Native-Styled Modal Overlay for Authentication Transitions -->
     <div class="modal-overlay" id="auth-modal">
         <div class="modal">
             <h3 id="auth-title" style="margin-top: 0; font-size: 1.4rem;">CREATE ACCOUNT</h3>
@@ -255,6 +274,7 @@
         </div>
     </div>
 
+    <!-- Win Notification Popups -->
     <div class="modal-overlay" id="bingo-modal">
         <div class="modal">
             <h2 style="font-size: 3.5rem; margin: 0 0 10px 0; color: var(--accent);">BINGO</h2>
@@ -263,6 +283,7 @@
         </div>
     </div>
 
+    <!-- Firebase System Integration Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
@@ -401,7 +422,6 @@
             }
         });
 
-        // FIXED VISUAL LOGOUT FLOW SANITIZER ENGINE
         document.getElementById('logout-btn').addEventListener('click', () => {
             signOut(auth).then(() => {
                 localStorage.removeItem("squareup_guest_cards");
@@ -642,7 +662,7 @@
                 const records = snapshot.val() || {};
                 const sorted = Object.values(records).sort((a,b) => b.score - a.score);
                 document.getElementById('leaderboard-container').innerHTML = sorted.map(p => `
-                    <div class='history-item'><span>${p.name}</span>export <strong>${p.score} PTS</strong></div>
+                    <div class='history-item'><span>${p.name}</span><strong>${p.score} PTS</strong></div>
                 `).join("");
             });
         }
